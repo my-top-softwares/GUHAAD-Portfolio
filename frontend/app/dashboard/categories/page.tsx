@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
 import { Plus, Edit, Trash2, Tags, Loader2 } from "lucide-react"
+import API from "@/api/axios"
 
 interface Category {
     _id: string
@@ -33,9 +34,8 @@ export default function CategoriesPage() {
     const fetchCategories = async () => {
         try {
             setLoading(true)
-            const response = await fetch("http://localhost:5000/api/categories")
-            const data = await response.json()
-            setCategories(data)
+            const response = await API.get("/categories")
+            setCategories(response.data)
         } catch (error) {
             console.error("Error fetching categories:", error)
         } finally {
@@ -69,32 +69,17 @@ export default function CategoriesPage() {
 
         try {
             setSubmitting(true)
-            const url = selectedCategory
-                ? `http://localhost:5000/api/categories/${selectedCategory._id}`
-                : "http://localhost:5000/api/categories"
-
-            const method = selectedCategory ? "PUT" : "POST"
-
-            const token = localStorage.getItem("token")
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(formData),
-            })
-
-            if (response.ok) {
-                fetchCategories()
-                handleCloseModal()
+            if (selectedCategory) {
+                await API.put(`/categories/${selectedCategory._id}`, formData)
             } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to save category"}`)
+                await API.post("/categories", formData)
             }
-        } catch (error) {
+
+            fetchCategories()
+            handleCloseModal()
+        } catch (error: any) {
             console.error("Error saving category:", error)
-            alert("An error occurred while saving the category. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to save category"}`)
         } finally {
             setSubmitting(false)
         }
@@ -105,25 +90,13 @@ export default function CategoriesPage() {
 
         try {
             setSubmitting(true)
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory._id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (response.ok) {
-                fetchCategories()
-                setIsDeleteModalOpen(false)
-                setSelectedCategory(null)
-            } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to delete category. Please check your permissions."}`)
-            }
-        } catch (error) {
+            await API.delete(`/categories/${selectedCategory._id}`)
+            fetchCategories()
+            setIsDeleteModalOpen(false)
+            setSelectedCategory(null)
+        } catch (error: any) {
             console.error("Error deleting category:", error)
-            alert("An error occurred while deleting the category. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to delete category. Please check your permissions."}`)
         } finally {
             setSubmitting(false)
         }

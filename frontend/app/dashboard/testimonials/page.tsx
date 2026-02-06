@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
 import { Plus, Edit, Trash2, MessageSquare, Star, Loader2 } from "lucide-react"
+import API from "@/api/axios"
 
 interface Testimonial {
     _id: string
@@ -37,9 +38,8 @@ export default function TestimonialsPage() {
     const fetchTestimonials = async () => {
         try {
             setLoading(true)
-            const response = await fetch("http://localhost:5000/api/testimonials")
-            const data = await response.json()
-            setTestimonials(data)
+            const response = await API.get("/testimonials")
+            setTestimonials(response.data)
         } catch (error) {
             console.error("Error fetching testimonials:", error)
         } finally {
@@ -75,32 +75,18 @@ export default function TestimonialsPage() {
 
         try {
             setSubmitting(true)
-            const url = selectedTestimonial
-                ? `http://localhost:5000/api/testimonials/${selectedTestimonial._id}`
-                : "http://localhost:5000/api/testimonials"
 
-            const method = selectedTestimonial ? "PUT" : "POST"
-
-            const token = localStorage.getItem("token")
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(formData),
-            })
-
-            if (response.ok) {
-                fetchTestimonials()
-                handleCloseModal()
+            if (selectedTestimonial) {
+                await API.put(`/testimonials/${selectedTestimonial._id}`, formData)
             } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to save testimonial"}`)
+                await API.post("/testimonials", formData)
             }
-        } catch (error) {
+
+            fetchTestimonials()
+            handleCloseModal()
+        } catch (error: any) {
             console.error("Error saving testimonial:", error)
-            alert("An error occurred while saving the testimonial. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to save testimonial"}`)
         } finally {
             setSubmitting(false)
         }
@@ -111,25 +97,13 @@ export default function TestimonialsPage() {
 
         try {
             setSubmitting(true)
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/testimonials/${selectedTestimonial._id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (response.ok) {
-                fetchTestimonials()
-                setIsDeleteModalOpen(false)
-                setSelectedTestimonial(null)
-            } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to delete testimonial. Please check your permissions."}`)
-            }
-        } catch (error) {
+            await API.delete(`/testimonials/${selectedTestimonial._id}`)
+            fetchTestimonials()
+            setIsDeleteModalOpen(false)
+            setSelectedTestimonial(null)
+        } catch (error: any) {
             console.error("Error deleting testimonial:", error)
-            alert("An error occurred while deleting the testimonial. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to delete testimonial. Please check your permissions."}`)
         } finally {
             setSubmitting(false)
         }

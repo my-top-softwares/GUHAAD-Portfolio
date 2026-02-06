@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
 import { Plus, Edit, Trash2, Code2, X, Loader2 } from "lucide-react"
+import API from "@/api/axios"
 
 interface Service {
     _id: string
@@ -38,9 +39,8 @@ export default function ServicesPage() {
     const fetchServices = async () => {
         try {
             setLoading(true)
-            const response = await fetch("http://localhost:5000/api/services")
-            const data = await response.json()
-            setServices(data)
+            const response = await API.get("/services")
+            setServices(response.data)
         } catch (error) {
             console.error("Error fetching services:", error)
         } finally {
@@ -91,32 +91,17 @@ export default function ServicesPage() {
 
         try {
             setSubmitting(true)
-            const url = selectedService
-                ? `http://localhost:5000/api/services/${selectedService._id}`
-                : "http://localhost:5000/api/services"
-
-            const method = selectedService ? "PUT" : "POST"
-
-            const token = localStorage.getItem("token")
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(formData),
-            })
-
-            if (response.ok) {
-                fetchServices()
-                handleCloseModal()
+            if (selectedService) {
+                await API.put(`/services/${selectedService._id}`, formData)
             } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to save service"}`)
+                await API.post("/services", formData)
             }
-        } catch (error) {
+
+            fetchServices()
+            handleCloseModal()
+        } catch (error: any) {
             console.error("Error saving service:", error)
-            alert("An error occurred while saving the service. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to save service"}`)
         } finally {
             setSubmitting(false)
         }
@@ -127,25 +112,13 @@ export default function ServicesPage() {
 
         try {
             setSubmitting(true)
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/services/${selectedService._id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (response.ok) {
-                fetchServices()
-                setIsDeleteModalOpen(false)
-                setSelectedService(null)
-            } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to delete service. Please check your permissions."}`)
-            }
-        } catch (error) {
+            await API.delete(`/services/${selectedService._id}`)
+            fetchServices()
+            setIsDeleteModalOpen(false)
+            setSelectedService(null)
+        } catch (error: any) {
             console.error("Error deleting service:", error)
-            alert("An error occurred while deleting the service. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to delete service. Please check your permissions."}`)
         } finally {
             setSubmitting(false)
         }

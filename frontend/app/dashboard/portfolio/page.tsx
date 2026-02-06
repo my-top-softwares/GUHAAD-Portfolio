@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
 import { Plus, Edit, Trash2, FolderKanban, Heart, Loader2 } from "lucide-react"
+import API from "@/api/axios"
 
 interface Category {
     _id: string
@@ -52,9 +53,8 @@ export default function PortfolioPage() {
     const fetchPortfolios = async () => {
         try {
             setLoading(true)
-            const response = await fetch("http://localhost:5000/api/projects")
-            const data = await response.json()
-            setPortfolios(data)
+            const response = await API.get("/projects")
+            setPortfolios(response.data)
         } catch (error) {
             console.error("Error fetching portfolios:", error)
         } finally {
@@ -64,9 +64,8 @@ export default function PortfolioPage() {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/categories")
-            const data = await response.json()
-            setCategories(data)
+            const response = await API.get("/categories")
+            setCategories(response.data)
         } catch (error) {
             console.error("Error fetching categories:", error)
         }
@@ -119,11 +118,6 @@ export default function PortfolioPage() {
 
         try {
             setSubmitting(true)
-            const url = selectedPortfolio
-                ? `http://localhost:5000/api/projects/${selectedPortfolio._id}`
-                : "http://localhost:5000/api/projects"
-
-            const method = selectedPortfolio ? "PUT" : "POST"
 
             const payload = {
                 ...formData,
@@ -131,26 +125,17 @@ export default function PortfolioPage() {
                 category: formData.category || undefined,
             }
 
-            const token = localStorage.getItem("token")
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(payload),
-            })
-
-            if (response.ok) {
-                fetchPortfolios()
-                handleCloseModal()
+            if (selectedPortfolio) {
+                await API.put(`/projects/${selectedPortfolio._id}`, payload)
             } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to save portfolio"}`)
+                await API.post("/projects", payload)
             }
-        } catch (error) {
+
+            fetchPortfolios()
+            handleCloseModal()
+        } catch (error: any) {
             console.error("Error saving portfolio:", error)
-            alert("An error occurred while saving the portfolio. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to save portfolio. Please check your connection and try again."}`)
         } finally {
             setSubmitting(false)
         }
@@ -161,25 +146,13 @@ export default function PortfolioPage() {
 
         try {
             setSubmitting(true)
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/projects/${selectedPortfolio._id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (response.ok) {
-                fetchPortfolios()
-                setIsDeleteModalOpen(false)
-                setSelectedPortfolio(null)
-            } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.message || "Failed to delete portfolio. Please check your permissions."}`)
-            }
-        } catch (error) {
+            await API.delete(`/projects/${selectedPortfolio._id}`)
+            fetchPortfolios()
+            setIsDeleteModalOpen(false)
+            setSelectedPortfolio(null)
+        } catch (error: any) {
             console.error("Error deleting portfolio:", error)
-            alert("An error occurred while deleting the portfolio. Please check your connection and try again.")
+            alert(`Error: ${error.response?.data?.message || "Failed to delete portfolio. Please check your permissions."}`)
         } finally {
             setSubmitting(false)
         }

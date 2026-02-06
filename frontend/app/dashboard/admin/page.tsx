@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
-import { Plus, Edit, Trash2, Users, Shield, User } from "lucide-react"
+import { Plus, Edit, Trash2, Users, Shield, User, Loader2 } from "lucide-react"
+import API from "@/api/axios"
 
 interface UserType {
     _id: string
@@ -17,6 +18,7 @@ interface UserType {
 export default function AdminManagementPage() {
     const [users, setUsers] = useState<UserType[]>([])
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [selectedUser, setSelectedUser] = useState<UserType | null>(null)
@@ -42,14 +44,8 @@ export default function AdminManagementPage() {
     const fetchUsers = async () => {
         try {
             setLoading(true)
-            const token = localStorage.getItem("token")
-            const response = await fetch("http://localhost:5000/api/users", {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-            const data = await response.json()
-            setUsers(data)
+            const response = await API.get("/users")
+            setUsers(response.data)
         } catch (error) {
             console.error("Error fetching users:", error)
         } finally {
@@ -83,32 +79,24 @@ export default function AdminManagementPage() {
         e.preventDefault()
 
         try {
-            const url = selectedUser
-                ? `http://localhost:5000/api/users/${selectedUser._id}`
-                : "http://localhost:5000/api/users"
-
-            const method = selectedUser ? "PUT" : "POST"
-
+            setSubmitting(true)
             const payload = selectedUser && !formData.password
                 ? { name: formData.name, email: formData.email, role: formData.role }
                 : formData
 
-            const token = localStorage.getItem("token")
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(payload),
-            })
-
-            if (response.ok) {
-                fetchUsers()
-                handleCloseModal()
+            if (selectedUser) {
+                await API.put(`/users/${selectedUser._id}`, payload)
+            } else {
+                await API.post("/users", payload)
             }
-        } catch (error) {
+
+            fetchUsers()
+            handleCloseModal()
+        } catch (error: any) {
             console.error("Error saving user:", error)
+            alert(`Error: ${error.response?.data?.message || "Failed to save user"}`)
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -116,21 +104,16 @@ export default function AdminManagementPage() {
         if (!selectedUser) return
 
         try {
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/users/${selectedUser._id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (response.ok) {
-                fetchUsers()
-                setIsDeleteModalOpen(false)
-                setSelectedUser(null)
-            }
-        } catch (error) {
+            setSubmitting(true)
+            await API.delete(`/users/${selectedUser._id}`)
+            fetchUsers()
+            setIsDeleteModalOpen(false)
+            setSelectedUser(null)
+        } catch (error: any) {
             console.error("Error deleting user:", error)
+            alert(`Error: ${error.response?.data?.message || "Failed to delete user"}`)
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -141,19 +124,8 @@ export default function AdminManagementPage() {
 
     const toggleUserStatus = async (user: UserType) => {
         try {
-            const token = localStorage.getItem("token")
-            const response = await fetch(`http://localhost:5000/api/users/${user._id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ isActive: !user.isActive }),
-            })
-
-            if (response.ok) {
-                fetchUsers()
-            }
+            await API.put(`/users/${user._id}`, { isActive: !user.isActive })
+            fetchUsers()
         } catch (error) {
             console.error("Error updating user status:", error)
         }
@@ -403,8 +375,10 @@ export default function AdminManagementPage() {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium"
+                            disabled={submitting}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                         >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                             {selectedUser ? "Update" : "Create"}
                         </button>
                     </div>
@@ -419,6 +393,7 @@ export default function AdminManagementPage() {
                     setSelectedUser(null)
                 }}
                 onConfirm={handleDelete}
+                isLoading={submitting}
                 title="Delete User"
                 message={`Are you sure you want to delete "${selectedUser?.name}"? This action cannot be undone.`}
             />
