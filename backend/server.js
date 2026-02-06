@@ -6,7 +6,9 @@ import cors from "cors";
 import connectDB from "./config/dbconfig.js";
 
 const app = express();
-app.use(cors());
+app.use(cors(
+
+));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -18,6 +20,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import jobs from "./config/cron.js";
 
 connectDB();
 
@@ -29,7 +32,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/messages", messageRoutes);
-
+jobs.start();
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
