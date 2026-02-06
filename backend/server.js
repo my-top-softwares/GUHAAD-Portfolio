@@ -20,6 +20,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
 import jobs from "./config/cron.js";
 
 connectDB();
@@ -32,6 +33,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/settings", settingsRoutes);
 jobs.start();
 app.get("/", (req, res) => {
     res.send("Hello World!");

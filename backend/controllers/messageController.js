@@ -1,4 +1,5 @@
 import Message from "../models/messageModel.js";
+import Settings from "../models/settingsModel.js";
 import nodemailer from "nodemailer";
 
 // @desc    Create a new message
@@ -18,24 +19,31 @@ const createMessage = async (req, res) => {
 
         const createdMessage = await newMessage.save();
 
+        // Fetch dynamic settings from database
+        const dbSettings = await Settings.findOne();
+
+        const emailUser = dbSettings?.emailUser || process.env.EMAIL_USER;
+        const emailPass = dbSettings?.emailPass || process.env.EMAIL_PASS;
+        const notificationEmail = dbSettings?.notificationEmail || process.env.NOTIFICATION_EMAIL || "faysalmohamed710@gmail.com";
+
         // Send email notification
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 465,
             secure: true, // use SSL
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: emailUser,
+                pass: emailPass,
             },
             tls: {
-                rejectUnauthorized: false // Helps with some network environments
+                rejectUnauthorized: false
             }
         });
 
         const mailOptions = {
-            from: `"Portfolio Notification" <${process.env.EMAIL_USER}>`,
+            from: `"Portfolio Notification" <${emailUser}>`,
             replyTo: email,
-            to: process.env.NOTIFICATION_EMAIL || "faysalmohamed710@gmail.com",
+            to: notificationEmail,
             subject: `🚀 New Message: ${subject}`,
             html: `
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
@@ -65,12 +73,12 @@ const createMessage = async (req, res) => {
 
         try {
             await transporter.sendMail(mailOptions);
-            console.log("✅ SUCCESS: Email sent to", process.env.NOTIFICATION_EMAIL || "faysalmohamed710@gmail.com");
+            console.log("✅ SUCCESS: Email sent to", notificationEmail);
         } catch (emailError) {
             console.error("❌ FAILED TO SEND EMAIL:");
             console.error("   Reason:", emailError.message);
-            console.error("   Current Config -> USER:", process.env.EMAIL_USER, "| PASS:", process.env.EMAIL_PASS === 'your_app_password_here' ? "NOT CONFIGURED (Placeholder)" : "Configured");
-            console.log("   👉 TIP: Please generate a 16-character 'App Password' from Google and put it in .env");
+            console.error("   Current Config -> USER:", emailUser, "| PASS:", emailPass ? "Configured" : "NOT CONFIGURED");
+            console.log("   👉 TIP: Please generate a 16-character 'App Password' from Google and check settings in Dashboard.");
         }
 
         res.status(201).json(createdMessage);

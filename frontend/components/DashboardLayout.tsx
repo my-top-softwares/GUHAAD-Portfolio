@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -14,7 +14,8 @@ import {
     X,
     Shield,
     GraduationCap,
-    Mail
+    Mail,
+    Settings
 } from "lucide-react"
 
 interface DashboardLayoutProps {
@@ -25,11 +26,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const pathname = usePathname()
     const router = useRouter()
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [user, setUser] = useState<any>(null)
 
-    // Check user role from localStorage
-    const userString = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
-    const user = userString ? JSON.parse(userString) : null;
-    const isAdmin = user?.role === "admin";
+    useEffect(() => {
+        setMounted(true)
+        const userString = localStorage.getItem("user")
+        if (userString) {
+            const userData = JSON.parse(userString)
+            setUser(userData)
+            setIsAdmin(userData.role === "admin")
+        }
+    }, [])
 
     const menuItems = [
         { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -39,6 +48,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { icon: MessageSquare, label: "Testimonials", href: "/dashboard/testimonials" },
         { icon: GraduationCap, label: "Resume", href: "/dashboard/resume" },
         { icon: Tags, label: "Categories", href: "/dashboard/categories" },
+        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ]
 
     // Only add Admin Management if user is admin
@@ -51,6 +61,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         localStorage.removeItem("user");
         router.push("/login");
     }
+
+    if (!mounted) return null // Prevent hydration flash
 
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-[#0a0a0a]">
