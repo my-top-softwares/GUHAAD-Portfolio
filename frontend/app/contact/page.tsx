@@ -1,18 +1,43 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Mail, MapPin, Phone, Send, Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import { Mail, MapPin, Phone, Send, Facebook, Twitter, Instagram, Linkedin, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
+import API from "@/api/axios"
 
 export default function ContactPage() {
-    const handleSubmit = (e: React.FormEvent) => {
+    const [loading, setLoading] = useState(false)
+    const [formData, setFormData] = useState({
+        name: "",
+        phone: "",
+        email: "",
+        subject: "",
+        message: ""
+    })
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Handle form submission logic here
-        alert("Message sent! (This is a demo)")
+        try {
+            setLoading(true)
+            await API.post("/messages", formData)
+            alert("Message sent successfully!")
+            setFormData({
+                name: "",
+                phone: "",
+                email: "",
+                subject: "",
+                message: ""
+            })
+        } catch (error: any) {
+            console.error("Error sending message:", error)
+            alert(error.response?.data?.message || "Failed to send message. Please try again.")
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -67,7 +92,7 @@ export default function ContactPage() {
                                     </div>
                                     <div className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors cursor-pointer">
                                         <Mail className="w-5 h-5 text-primary" />
-                                        <span>guhaad@example.com</span>
+                                        <span>faysalmaxameddahir@gmail.com</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors cursor-pointer">
                                         <MapPin className="w-5 h-5 text-primary" />
@@ -101,29 +126,67 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Your Name</label>
-                                        <Input className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20" />
+                                        <Input
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20"
+                                            required
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Phone Number</label>
-                                        <Input className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20" />
+                                        <Input
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20"
+                                        />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Email</label>
-                                    <Input type="email" className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20" />
+                                    <Input
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20"
+                                        required
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Subject</label>
-                                    <Input className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20" />
+                                    <Input
+                                        value={formData.subject}
+                                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                                        className="bg-background border-none shadow-neu-pressed h-12 focus-visible:ring-primary/20"
+                                        required
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Message</label>
-                                    <Textarea className="bg-background border-none shadow-neu-pressed min-h-[200px] resize-none focus-visible:ring-primary/20 p-4" />
+                                    <Textarea
+                                        value={formData.message}
+                                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                        className="bg-background border-none shadow-neu-pressed min-h-[200px] resize-none focus-visible:ring-primary/20 p-4"
+                                        required
+                                    />
                                 </div>
 
-                                <Button type="submit" className="w-full md:w-auto bg-background text-primary border border-primary/20 hover:bg-primary hover:text-white shadow-neu-active py-6 px-12 text-lg rounded-xl transition-all uppercase tracking-widest font-bold mt-4">
-                                    Send Message
-                                    <Send className="w-4 h-4 ml-2" />
+                                <Button
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full md:w-auto bg-background text-primary border border-primary/20 hover:bg-primary hover:text-white shadow-neu-active py-6 px-12 text-lg rounded-xl transition-all uppercase tracking-widest font-bold mt-4 min-w-[200px]"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                            Sending...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Send Message
+                                            <Send className="w-4 h-4 ml-2" />
+                                        </>
+                                    )}
                                 </Button>
                             </form>
                         </div>

@@ -1,63 +1,58 @@
 "use client"
 
+import { useState, useEffect } from "react"
+
 import { motion } from "framer-motion"
-import { Palette, Layers, Video, Mic, Check } from "lucide-react"
+import { Palette, Layers, Video, Mic, Check, Monitor, PenTool, Loader2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import API from "@/api/axios"
 
-const services = [
-    {
-        icon: <Palette className="w-10 h-10 text-primary" />,
-        title: "Graphic Design",
-        description: "Creative designs for Social Media, Posters, and wide-ranging Marketing Creatives that capture attention."
-    },
-    {
-        icon: <Layers className="w-10 h-10 text-primary" />,
-        title: "Branding & Identity",
-        description: "Complete Brand Systems, Logos, and Guidelines to establish a strong and memorable market presence."
-    },
-    {
-        icon: <Video className="w-10 h-10 text-primary" />,
-        title: "Motion Graphics & Video",
-        description: "High-quality video production and motion graphics that bring your stories to life."
-    },
-    {
-        icon: <Mic className="w-10 h-10 text-primary" />,
-        title: "Content & Voice Over",
-        description: "Professional Content Writing and Voice Over Production to convey your message clearly."
-    },
-]
-
-const pricing = [
-    {
-        name: "Starter Package",
-        price: "$120",
-        features: ["Social Media Kit", "5 Revisions", "Standard Support"]
-    },
-    {
-        name: "Professional Package",
-        price: "$300",
-        features: ["Complete Branding", "Unlimited Revisions", "Priority Support", "Logo Design"]
-    },
-    {
-        name: "Business Package",
-        price: "$600",
-        features: ["Full Brand Identity", "Marketing Collateral", "24/7 Support", "Source Files"]
-    },
-    {
-        name: "Basic Animation",
-        price: "$150",
-        features: ["30s Animation", "Background Music", "HD 1080p Export"]
-    },
-    {
-        name: "Advanced Animation",
-        price: "$400",
-        features: ["60s+ Animation", "Voice Over", "4K Export", "Scriptwriting"]
-    },
-]
+interface Service {
+    _id: string
+    title: string
+    description: string
+    price: number
+    features: string[]
+    icon: string
+}
 
 export default function ServicesPage() {
+    const [services, setServices] = useState<Service[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const { data } = await API.get("/services")
+                setServices(data)
+            } catch (error) {
+                console.error("Error fetching services:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchServices()
+    }, [])
+
+    const getIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'ux': return <Palette className="w-10 h-10" />;
+            case 'app': return <Monitor className="w-10 h-10" />;
+            case 'web': return <Video className="w-10 h-10" />;
+            case 'ui': return <PenTool className="w-10 h-10" />;
+            case 'system': return <Layers className="w-10 h-10" />;
+            case 'wireframe': return <Mic className="w-10 h-10" />;
+            default: return <Palette className="w-10 h-10" />;
+        }
+    }
+
+    const handleOrderWhatsApp = (service: Service) => {
+        const message = `Hi, I want to order the *${service.title}* package ($${service.price})`
+        const whatsappUrl = `https://wa.me/252618240346?text=${encodeURIComponent(message)}`
+        window.open(whatsappUrl, '_blank')
+    }
     return (
         <div className="min-h-screen bg-background pt-20">
             {/* Header */}
@@ -79,29 +74,39 @@ export default function ServicesPage() {
 
             {/* Services Grid */}
             <div className="container mx-auto px-4 md:px-8 mb-32">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {services.map((service, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1, duration: 0.5 }}
-                            className="group"
-                        >
-                            <div className="h-full p-8 md:p-10 rounded-2xl bg-background shadow-neu hover:shadow-neu-pressed transition-all duration-300">
-                                <div className="mb-6 p-4 w-fit rounded-full bg-background shadow-neu text-primary group-hover:scale-110 transition-transform duration-300">
-                                    {service.icon}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {loading ? (
+                        <div className="col-span-full flex justify-center py-20">
+                            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                        </div>
+                    ) : services.length > 0 ? (
+                        services.map((service, index) => (
+                            <motion.div
+                                key={service._id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1, duration: 0.5 }}
+                                className="group"
+                            >
+                                <div className="h-full p-6 md:p-8 rounded-[2rem] bg-background shadow-neu hover:shadow-neu-pressed transition-all duration-500 flex flex-col items-center text-center">
+                                    <div className="mb-6 p-5 rounded-full bg-background shadow-neu text-primary group-hover:scale-110 transition-transform duration-300">
+                                        {getIcon(service.icon)}
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-4 text-foreground leading-tight">
+                                        {service.title}
+                                    </h3>
+                                    <p className="text-muted-foreground text-base leading-relaxed line-clamp-4">
+                                        {service.description}
+                                    </p>
                                 </div>
-                                <h3 className="text-2xl font-bold mb-4 text-foreground">
-                                    {service.title}
-                                </h3>
-                                <p className="text-muted-foreground text-lg leading-relaxed">
-                                    {service.description}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-10 text-muted-foreground">
+                            No services available.
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -113,37 +118,50 @@ export default function ServicesPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-                    {pricing.map((pkg, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                        >
-                            <Card className="items-center text-center h-full border-none shadow-neu hover:shadow-neu-pressed transition-all duration-300 bg-background">
-                                <CardHeader>
-                                    <CardTitle className="text-xl font-bold text-muted-foreground uppercase tracking-wider">{pkg.name}</CardTitle>
-                                    <div className="text-4xl font-bold text-primary py-4">{pkg.price}</div>
-                                </CardHeader>
-                                <CardContent>
-                                    <ul className="space-y-4 text-left inline-block">
-                                        {pkg.features.map((feat, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-muted-foreground">
-                                                <Check className="w-5 h-5 text-primary" />
-                                                {feat}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="justify-center pb-8">
-                                    <Button className="bg-background text-primary border border-primary/20 hover:bg-primary hover:text-white shadow-neu-active w-full py-6 text-lg rounded-xl transition-all">
-                                        ORDER NOW
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        </motion.div>
-                    ))}
+                    {loading ? (
+                        <div className="col-span-full flex justify-center py-10">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                        </div>
+                    ) : services.length > 0 ? (
+                        services.map((pkg, index) => (
+                            <motion.div
+                                key={pkg._id}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                            >
+                                <Card className="items-center text-center h-full border-none shadow-neu hover:shadow-neu-pressed transition-all duration-300 bg-background">
+                                    <CardHeader>
+                                        <CardTitle className="text-xl font-bold text-muted-foreground uppercase tracking-wider">{pkg.title} PACKAGE</CardTitle>
+                                        <div className="text-4xl font-bold text-primary py-4">${pkg.price}</div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ul className="space-y-4 text-left inline-block">
+                                            {pkg.features?.map((feat, i) => (
+                                                <li key={i} className="flex items-center gap-3 text-muted-foreground">
+                                                    <Check className="w-5 h-5 text-primary" />
+                                                    {feat}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </CardContent>
+                                    <CardFooter className="justify-center pb-8">
+                                        <Button
+                                            onClick={() => handleOrderWhatsApp(pkg)}
+                                            className="bg-background text-primary border border-primary/20 hover:bg-primary hover:text-white shadow-neu-active w-full py-6 text-lg rounded-xl transition-all"
+                                        >
+                                            ORDER NOW
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            </motion.div>
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-10 text-muted-foreground">
+                            No packages available.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

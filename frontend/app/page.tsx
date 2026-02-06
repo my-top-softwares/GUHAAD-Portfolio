@@ -1,13 +1,68 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Facebook, Instagram, Linkedin, Figma, Code2, Database, Star, ArrowRight, CheckCircle2, Video, PenTool, Layers, Mic, Clapperboard, Monitor } from "lucide-react"
+import { Facebook, Instagram, Linkedin, Figma, Code2, Database, Star, ArrowRight, CheckCircle2, Video, PenTool, Layers, Mic, Clapperboard, Monitor, Palette } from "lucide-react"
 import Link from "next/link"
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { PortfolioSection } from "@/components/PortfolioSection"
+import API from "@/api/axios"
+
+interface Service {
+  _id: string
+  title: string
+  description: string
+  icon: string
+}
+
+interface Testimonial {
+  _id: string
+  name: string
+  position?: string
+  company?: string
+  message: string
+  rating: number
+  image?: string
+  createdAt: string
+}
+
 
 export default function Home() {
+  const [services, setServices] = useState<Service[]>([])
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [servicesRes, testimonialsRes] = await Promise.all([
+          API.get("/services"),
+          API.get("/testimonials")
+        ])
+        setServices(servicesRes.data)
+        setTestimonials(testimonialsRes.data)
+      } catch (error) {
+        console.error("Error fetching homepage data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'ux': return <Palette className="w-8 h-8" />;
+      case 'app': return <Monitor className="w-8 h-8" />;
+      case 'web': return <Video className="w-8 h-8" />;
+      case 'ui': return <PenTool className="w-8 h-8" />;
+      case 'system': return <Layers className="w-8 h-8" />;
+      case 'wireframe': return <Mic className="w-8 h-8" />;
+      default: return <Code2 className="w-8 h-8" />;
+    }
+  }
+
   const socialLinks = [
     { icon: <Facebook className="w-5 h-5" />, href: "#" },
     { icon: <Instagram className="w-5 h-5" />, href: "#" },
@@ -208,36 +263,39 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { title: "Web Development", desc: "Custom web applications built with modern technologies for optimal performance and user experience.", icon: <Code2 className="w-8 h-8" /> },
-              { title: "Technical Writing", desc: "Clear and comprehensive documentation to help users understand and utilize your products effectively.", icon: <Database className="w-8 h-8" /> }, // Placeholder icon
-              { title: "Mobile Development", desc: "Native and cross-platform mobile apps that deliver seamless experiences on all devices.", icon: <Instagram className="w-8 h-8" /> }, // Placeholder icon
-              { title: "Email Marketing", desc: "Strategic email campaigns that engage your audience and drive conversions effectively.", icon: <Facebook className="w-8 h-8" /> }, // Placeholder icon
-              { title: "UI/UX Design", desc: "User-centered designs that combine aesthetics with functionality for exceptional digital experiences.", icon: <Figma className="w-8 h-8" /> },
-              { title: "Web Design", desc: "Responsive and visually stunning website designs that captivate visitors and reflect your brand.", icon: <Linkedin className="w-8 h-8" /> } // Placeholder icon
-            ].map((service, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group relative p-8 rounded-2xl bg-[#212428] dark:bg-[#1e2024] border border-white/5 overflow-hidden hover:-translate-y-2 transition-transform duration-500"
-              >
-                {/* Gradient Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            {loading ? (
+              <div className="col-span-full flex justify-center py-20">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : services.length > 0 ? (
+              services.map((service, i) => (
+                <motion.div
+                  key={service._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group relative p-8 rounded-2xl bg-[#212428] dark:bg-[#1e2024] border border-white/5 overflow-hidden hover:-translate-y-2 transition-transform duration-500"
+                >
+                  {/* Gradient Overlay on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-lg shadow-primary/10">
-                    {service.icon}
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-lg shadow-primary/10">
+                      {getIcon(service.icon)}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
+                    <p className="text-gray-400 group-hover:text-gray-300 transition-colors leading-relaxed">
+                      {service.description}
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{service.title}</h3>
-                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors leading-relaxed">
-                    {service.desc}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-muted-foreground py-20">
+                No services found.
+              </div>
+            )}
           </div>
         </div>
 
@@ -401,28 +459,42 @@ export default function Home() {
               drag="x"
               dragConstraints={{ right: 0, left: -600 }}
             >
-              {[
-                { name: "Karan", date: "1 week ago", text: "My buying experience is so nice, and received me very politely. Riding experience is also very good. Very good performance. I never experienced such a kind of performance. Very good service.", avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&auto=format&fit=crop&q=60" },
-                { name: "Catherine", date: "10 days ago", text: "I love my e-bike and the customer service is excellent. They respond in a timely manner with loads of information about e-bikes, accessories and maintenance information.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=60" },
-                { name: "Peter", date: "2 weeks ago", text: "Visited to EO store. Products particularly welds, looked great. My wife and I took small test ride in parking lot area. We bought 2 bikes with customization after going over all the options. Very satisfied.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=60" },
-                { name: "Sarah", date: "3 weeks ago", text: "Amazing experience! The team guided me through every step and the bike quality exceeds my expectations. Highly recommended!", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=60" }
-              ].map((review, i) => (
-                <div key={i} className="min-w-[320px] md:min-w-[350px] bg-white dark:bg-[#1e2024] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
-                  <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed min-h-[120px]">
-                    {review.text}
-                  </p>
-                  <div className="flex gap-1 text-[#00b67a] mb-6">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <img src={review.avatar} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
-                    <div>
-                      <h4 className="font-bold text-sm">{review.name}</h4>
-                      <span className="text-xs text-muted-foreground">{review.date}</span>
+              {loading ? (
+                <div className="flex items-center justify-center w-full py-20">
+                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : testimonials.length > 0 ? (
+                testimonials.map((review, i) => (
+                  <div key={review._id} className="min-w-[320px] md:min-w-[350px] bg-white dark:bg-[#1e2024] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
+                    <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed min-h-[120px]">
+                      {review.message}
+                    </p>
+                    <div className="flex gap-1 text-[#00b67a] mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-300"}`} />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {review.image ? (
+                        <img src={review.image} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                          {review.name.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-bold text-sm">{review.name}</h4>
+                        <span className="text-xs text-muted-foreground">{review.position || review.company}</span>
+                      </div>
                     </div>
                   </div>
+
+                ))
+              ) : (
+                <div className="flex items-center justify-center w-full py-20 text-muted-foreground">
+                  No testimonials found.
                 </div>
-              ))}
+              )}
             </motion.div>
           </div>
         </div>

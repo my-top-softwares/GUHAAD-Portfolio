@@ -77,9 +77,8 @@ const updateService = async (req, res) => {
 // @access  Private/Admin
 const deleteService = async (req, res) => {
     try {
-        const service = await Service.findById(req.params.id);
+        const service = await Service.findByIdAndDelete(req.params.id);
         if (service) {
-            await service.deleteOne();
             res.json({ message: "Service removed" });
         } else {
             res.status(404).json({ message: "Service not found" });

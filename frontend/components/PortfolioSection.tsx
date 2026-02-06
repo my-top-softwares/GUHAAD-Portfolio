@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Heart } from "lucide-react"
+import API from "@/api/axios"
 
 interface Category {
     _id: string
@@ -35,15 +36,12 @@ export function PortfolioSection() {
         try {
             setLoading(true)
             const [portfoliosRes, categoriesRes] = await Promise.all([
-                fetch("http://localhost:5000/api/projects"),
-                fetch("http://localhost:5000/api/categories"),
+                API.get("/projects"),
+                API.get("/categories"),
             ])
 
-            const portfoliosData = await portfoliosRes.json()
-            const categoriesData = await categoriesRes.json()
-
-            setPortfolios(portfoliosData)
-            setCategories(categoriesData)
+            setPortfolios(portfoliosRes.data)
+            setCategories(categoriesRes.data)
         } catch (error) {
             console.error("Error fetching data:", error)
         } finally {

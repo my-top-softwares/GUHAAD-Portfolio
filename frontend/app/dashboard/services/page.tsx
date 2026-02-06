@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
-import { Plus, Edit, Trash2, Code2, X } from "lucide-react"
+import { Plus, Edit, Trash2, Code2, X, Loader2 } from "lucide-react"
 
 interface Service {
     _id: string
@@ -18,6 +18,7 @@ interface Service {
 export default function ServicesPage() {
     const [services, setServices] = useState<Service[]>([])
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [selectedService, setSelectedService] = useState<Service | null>(null)
@@ -89,6 +90,7 @@ export default function ServicesPage() {
         e.preventDefault()
 
         try {
+            setSubmitting(true)
             const url = selectedService
                 ? `http://localhost:5000/api/services/${selectedService._id}`
                 : "http://localhost:5000/api/services"
@@ -108,9 +110,15 @@ export default function ServicesPage() {
             if (response.ok) {
                 fetchServices()
                 handleCloseModal()
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to save service"}`)
             }
         } catch (error) {
             console.error("Error saving service:", error)
+            alert("An error occurred while saving the service. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -118,6 +126,7 @@ export default function ServicesPage() {
         if (!selectedService) return
 
         try {
+            setSubmitting(true)
             const token = localStorage.getItem("token")
             const response = await fetch(`http://localhost:5000/api/services/${selectedService._id}`, {
                 method: "DELETE",
@@ -130,9 +139,15 @@ export default function ServicesPage() {
                 fetchServices()
                 setIsDeleteModalOpen(false)
                 setSelectedService(null)
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to delete service. Please check your permissions."}`)
             }
         } catch (error) {
             console.error("Error deleting service:", error)
+            alert("An error occurred while deleting the service. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -344,8 +359,10 @@ export default function ServicesPage() {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium"
+                            disabled={submitting}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2"
                         >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                             {selectedService ? "Update" : "Create"}
                         </button>
                     </div>
@@ -360,6 +377,7 @@ export default function ServicesPage() {
                     setSelectedService(null)
                 }}
                 onConfirm={handleDelete}
+                isLoading={submitting}
                 title="Delete Package"
                 message={`Are you sure you want to delete "${selectedService?.title}"? This action cannot be undone.`}
             />

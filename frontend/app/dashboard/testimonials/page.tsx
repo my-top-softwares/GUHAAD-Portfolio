@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
-import { Plus, Edit, Trash2, MessageSquare, Star } from "lucide-react"
+import { Plus, Edit, Trash2, MessageSquare, Star, Loader2 } from "lucide-react"
 
 interface Testimonial {
     _id: string
@@ -18,6 +18,7 @@ interface Testimonial {
 export default function TestimonialsPage() {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([])
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null)
@@ -73,6 +74,7 @@ export default function TestimonialsPage() {
         e.preventDefault()
 
         try {
+            setSubmitting(true)
             const url = selectedTestimonial
                 ? `http://localhost:5000/api/testimonials/${selectedTestimonial._id}`
                 : "http://localhost:5000/api/testimonials"
@@ -92,9 +94,15 @@ export default function TestimonialsPage() {
             if (response.ok) {
                 fetchTestimonials()
                 handleCloseModal()
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to save testimonial"}`)
             }
         } catch (error) {
             console.error("Error saving testimonial:", error)
+            alert("An error occurred while saving the testimonial. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -102,6 +110,7 @@ export default function TestimonialsPage() {
         if (!selectedTestimonial) return
 
         try {
+            setSubmitting(true)
             const token = localStorage.getItem("token")
             const response = await fetch(`http://localhost:5000/api/testimonials/${selectedTestimonial._id}`, {
                 method: "DELETE",
@@ -114,9 +123,15 @@ export default function TestimonialsPage() {
                 fetchTestimonials()
                 setIsDeleteModalOpen(false)
                 setSelectedTestimonial(null)
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to delete testimonial. Please check your permissions."}`)
             }
         } catch (error) {
             console.error("Error deleting testimonial:", error)
+            alert("An error occurred while deleting the testimonial. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -287,8 +302,10 @@ export default function TestimonialsPage() {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium"
+                            disabled={submitting}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2"
                         >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                             {selectedTestimonial ? "Update" : "Create"}
                         </button>
                     </div>
@@ -303,6 +320,7 @@ export default function TestimonialsPage() {
                     setSelectedTestimonial(null)
                 }}
                 onConfirm={handleDelete}
+                isLoading={submitting}
                 title="Delete Testimonial"
                 message={`Are you sure you want to delete the testimonial from "${selectedTestimonial?.name}"? This action cannot be undone.`}
             />

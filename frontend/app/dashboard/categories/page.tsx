@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
-import { Plus, Edit, Trash2, Tags } from "lucide-react"
+import { Plus, Edit, Trash2, Tags, Loader2 } from "lucide-react"
 
 interface Category {
     _id: string
@@ -16,6 +16,7 @@ interface Category {
 export default function CategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
@@ -67,6 +68,7 @@ export default function CategoriesPage() {
         e.preventDefault()
 
         try {
+            setSubmitting(true)
             const url = selectedCategory
                 ? `http://localhost:5000/api/categories/${selectedCategory._id}`
                 : "http://localhost:5000/api/categories"
@@ -86,9 +88,15 @@ export default function CategoriesPage() {
             if (response.ok) {
                 fetchCategories()
                 handleCloseModal()
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to save category"}`)
             }
         } catch (error) {
             console.error("Error saving category:", error)
+            alert("An error occurred while saving the category. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -96,6 +104,7 @@ export default function CategoriesPage() {
         if (!selectedCategory) return
 
         try {
+            setSubmitting(true)
             const token = localStorage.getItem("token")
             const response = await fetch(`http://localhost:5000/api/categories/${selectedCategory._id}`, {
                 method: "DELETE",
@@ -108,9 +117,15 @@ export default function CategoriesPage() {
                 fetchCategories()
                 setIsDeleteModalOpen(false)
                 setSelectedCategory(null)
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to delete category. Please check your permissions."}`)
             }
         } catch (error) {
             console.error("Error deleting category:", error)
+            alert("An error occurred while deleting the category. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -274,8 +289,10 @@ export default function CategoriesPage() {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium"
+                            disabled={submitting}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2"
                         >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                             {selectedCategory ? "Update" : "Create"}
                         </button>
                     </div>
@@ -290,6 +307,7 @@ export default function CategoriesPage() {
                     setSelectedCategory(null)
                 }}
                 onConfirm={handleDelete}
+                isLoading={submitting}
                 title="Delete Category"
                 message={`Are you sure you want to delete "${selectedCategory?.name}"? This action cannot be undone.`}
             />

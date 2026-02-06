@@ -32,15 +32,18 @@ const getTestimonialById = async (req, res) => {
 // @route   POST /api/testimonials
 // @access  Private/Admin
 const createTestimonial = async (req, res) => {
-    const { name, position, company, message, image } = req.body;
+    const { name, position, company, message, rating, image } = req.body;
+
     try {
         const testimonial = new Testimonial({
             name,
             position,
             company,
             message,
+            rating,
             image
         });
+
         const createdTestimonial = await testimonial.save();
         res.status(201).json(createdTestimonial);
     } catch (error) {
@@ -52,7 +55,8 @@ const createTestimonial = async (req, res) => {
 // @route   PUT /api/testimonials/:id
 // @access  Private/Admin
 const updateTestimonial = async (req, res) => {
-    const { name, position, company, message, image } = req.body;
+    const { name, position, company, message, rating, image } = req.body;
+
     try {
         const testimonial = await Testimonial.findById(req.params.id);
         if (testimonial) {
@@ -60,7 +64,9 @@ const updateTestimonial = async (req, res) => {
             testimonial.position = position || testimonial.position;
             testimonial.company = company || testimonial.company;
             testimonial.message = message || testimonial.message;
+            testimonial.rating = rating !== undefined ? rating : testimonial.rating;
             testimonial.image = image || testimonial.image;
+
 
             const updatedTestimonial = await testimonial.save();
             res.json(updatedTestimonial);
@@ -77,9 +83,8 @@ const updateTestimonial = async (req, res) => {
 // @access  Private/Admin
 const deleteTestimonial = async (req, res) => {
     try {
-        const testimonial = await Testimonial.findById(req.params.id);
+        const testimonial = await Testimonial.findByIdAndDelete(req.params.id);
         if (testimonial) {
-            await testimonial.deleteOne();
             res.json({ message: "Testimonial removed" });
         } else {
             res.status(404).json({ message: "Testimonial not found" });

@@ -85,10 +85,9 @@ const updateUser = async (req, res) => {
 // @access  Private/Admin
 const deleteUser = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findByIdAndDelete(req.params.id);
 
         if (user) {
-            await User.deleteOne({ _id: req.params.id });
             res.json({ message: "User removed" });
         } else {
             res.status(404).json({ message: "User not found" });

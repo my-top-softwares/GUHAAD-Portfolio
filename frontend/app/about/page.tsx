@@ -1,13 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Download, Figma, Video, PenTool, Mic, Clapperboard, Layers, Briefcase, GraduationCap, Calendar } from "lucide-react"
+import { Download, Figma, Video, PenTool, Mic, Clapperboard, Layers, Briefcase, GraduationCap, Calendar, Loader2, Monitor, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import API from "@/api/axios"
+
+interface ResumeItem {
+    _id: string;
+    title: string;
+    organization: string;
+    duration: string;
+    description: string;
+    type: 'experience' | 'education';
+    order: number;
+}
+
+interface Service {
+    _id: string;
+    title: string;
+    description: string;
+    icon: string;
+}
+
 
 export default function AboutPage() {
     const [activeTab, setActiveTab] = useState<"experience" | "education">("experience")
+    const [resumeData, setResumeData] = useState<ResumeItem[]>([])
+    const [services, setServices] = useState<Service[]>([])
+    const [loading, setLoading] = useState(true)
+
 
     const skills = [
         { icon: <PenTool className="w-6 h-6" />, name: "Graphic Designer", percent: 95 },
@@ -18,42 +41,39 @@ export default function AboutPage() {
         { icon: <Clapperboard className="w-6 h-6" />, name: "Multimedia", percent: 88 },
     ]
 
-    const experience = [
-        {
-            role: "Senior Creative Visual Producer",
-            company: "Deero Advert",
-            period: "2021 - Present",
-            description: "Leading creative visual production and managing branding & video projects. Overseeing a team of designers and editors to deliver high-quality content."
-        },
-        {
-            role: "CEO & Founder",
-            company: "Guhaad Creatives & Advertisement Agency",
-            period: "2019 - Present",
-            description: "Founded and currently managing a creative agency focused on digital marketing, branding, and multimedia production for various clients."
-        },
-        {
-            role: "Multimedia Specialist",
-            company: "Freelance",
-            period: "2018 - 2020",
-            description: "Worked with multiple clients to produce engaging video content, motion graphics, and comprehensive brand identity packages."
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [{ data: resume }, { data: servs }] = await Promise.all([
+                    API.get("/resume"),
+                    API.get("/services")
+                ])
+                setResumeData(resume)
+                setServices(servs)
+            } catch (error) {
+                console.error("Error fetching about page data:", error)
+            } finally {
+                setLoading(false)
+            }
         }
-    ]
+        fetchData()
+    }, [])
 
-    // Placeholder Education Data
-    const education = [
-        {
-            degree: "Bachelor of Multimedia Arts",
-            school: "University of Creative Arts",
-            period: "2015 - 2019",
-            description: "Specialized in visual communication, digital media, and interactive design."
-        },
-        {
-            degree: "Certified Digital Marketer",
-            school: "Google Digital Garage",
-            period: "2020",
-            description: "Comprehensive certification in online marketing strategies, SEO, and analytics."
+    const getIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'ux': return <PenTool className="w-10 h-10" />;
+            case 'app': return <Monitor className="w-10 h-10" />;
+            case 'web': return <Video className="w-10 h-10" />;
+            case 'ui': return <PenTool className="w-10 h-10" />;
+            case 'system': return <Layers className="w-10 h-10" />;
+            case 'wireframe': return <Mic className="w-10 h-10" />;
+            default: return <PenTool className="w-10 h-10" />;
         }
-    ]
+    }
+
+
+    const experience = resumeData.filter(item => item.type === 'experience')
+    const education = resumeData.filter(item => item.type === 'education')
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white pt-20">
@@ -131,6 +151,41 @@ export default function AboutPage() {
                             </div>
                         </motion.div>
                     </div>
+                </div>
+            </div>
+
+            {/* What I Do Section */}
+            <div className="container mx-auto px-4 md:px-8 mb-32">
+                <div className="text-center mb-16">
+                    <span className="text-primary uppercase tracking-widest text-sm font-bold">Offerings</span>
+                    <h2 className="text-3xl md:text-5xl font-bold mt-2">What I Do</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {loading ? (
+                        <div className="col-span-full flex justify-center py-10">
+                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                        </div>
+                    ) : services.map((service, index) => (
+                        <motion.div
+                            key={service._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-background rounded-2xl p-10 shadow-neu hover:shadow-neu-pressed transition-all duration-300 group"
+                        >
+                            <div className="flex flex-col gap-6">
+                                <div className="p-4 w-fit rounded-full bg-background shadow-neu text-primary group-hover:scale-110 transition-transform duration-300">
+                                    {getIcon(service.icon)}
+                                </div>
+                                <h3 className="font-bold text-2xl">{service.title}</h3>
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {service.description}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
 
@@ -221,29 +276,37 @@ export default function AboutPage() {
                                     <h3 className="text-2xl font-bold">Job Experience</h3>
                                 </div>
                                 <div className="space-y-8 border-l-2 border-primary/20 pl-8 ml-4 md:ml-0">
-                                    {experience.map((job, index) => (
-                                        <motion.div
-                                            key={index}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1 }}
-                                            className="relative group"
-                                        >
-                                            <div className="absolute -left-[41px] top-0 w-5 h-5 bg-background border-4 border-primary rounded-full group-hover:scale-125 transition-transform duration-300" />
-                                            <div className="p-8 bg-background shadow-neu rounded-2xl hover:shadow-neu-pressed transition-all duration-300">
-                                                <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-2">
-                                                    <div>
-                                                        <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{job.role}</h4>
-                                                        <span className="text-sm text-primary font-medium mt-1 block">{job.company}</span>
+                                    {loading ? (
+                                        <div className="flex justify-center py-12">
+                                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                        </div>
+                                    ) : experience.length > 0 ? (
+                                        experience.map((job, index) => (
+                                            <motion.div
+                                                key={job._id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                                className="relative group"
+                                            >
+                                                <div className="absolute -left-[41px] top-0 w-5 h-5 bg-background border-4 border-primary rounded-full group-hover:scale-125 transition-transform duration-300" />
+                                                <div className="p-8 bg-background shadow-neu rounded-2xl hover:shadow-neu-pressed transition-all duration-300">
+                                                    <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-2">
+                                                        <div>
+                                                            <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{job.title}</h4>
+                                                            <span className="text-sm text-primary font-medium mt-1 block">{job.organization}</span>
+                                                        </div>
+                                                        <span className="px-3 py-1 bg-background shadow-neu rounded text-xs font-bold text-muted-foreground whitespace-nowrap">{job.duration}</span>
                                                     </div>
-                                                    <span className="px-3 py-1 bg-background shadow-neu rounded text-xs font-bold text-muted-foreground whitespace-nowrap">{job.period}</span>
+                                                    <p className="text-muted-foreground leading-relaxed">
+                                                        {job.description}
+                                                    </p>
                                                 </div>
-                                                <p className="text-muted-foreground leading-relaxed">
-                                                    {job.description}
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                            </motion.div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center text-muted-foreground py-12">No experience records found.</p>
+                                    )}
                                 </div>
                             </motion.div>
                         ) : (
@@ -261,29 +324,37 @@ export default function AboutPage() {
                                     <h3 className="text-2xl font-bold">Education Quality</h3>
                                 </div>
                                 <div className="space-y-8 border-l-2 border-primary/20 pl-8 ml-4 md:ml-0">
-                                    {education.map((edu, index) => (
-                                        <motion.div
-                                            key={index}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1 }}
-                                            className="relative group"
-                                        >
-                                            <div className="absolute -left-[41px] top-0 w-5 h-5 bg-background border-4 border-primary rounded-full group-hover:scale-125 transition-transform duration-300" />
-                                            <div className="p-8 bg-background shadow-neu rounded-2xl hover:shadow-neu-pressed transition-all duration-300">
-                                                <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-2">
-                                                    <div>
-                                                        <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{edu.degree}</h4>
-                                                        <span className="text-sm text-primary font-medium mt-1 block">{edu.school}</span>
+                                    {loading ? (
+                                        <div className="flex justify-center py-12">
+                                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                        </div>
+                                    ) : education.length > 0 ? (
+                                        education.map((edu, index) => (
+                                            <motion.div
+                                                key={edu._id}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: index * 0.1 }}
+                                                className="relative group"
+                                            >
+                                                <div className="absolute -left-[41px] top-0 w-5 h-5 bg-background border-4 border-primary rounded-full group-hover:scale-125 transition-transform duration-300" />
+                                                <div className="p-8 bg-background shadow-neu rounded-2xl hover:shadow-neu-pressed transition-all duration-300">
+                                                    <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-2">
+                                                        <div>
+                                                            <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{edu.title}</h4>
+                                                            <span className="text-sm text-primary font-medium mt-1 block">{edu.organization}</span>
+                                                        </div>
+                                                        <span className="px-3 py-1 bg-background shadow-neu rounded text-xs font-bold text-muted-foreground whitespace-nowrap">{edu.duration}</span>
                                                     </div>
-                                                    <span className="px-3 py-1 bg-background shadow-neu rounded text-xs font-bold text-muted-foreground whitespace-nowrap">{edu.period}</span>
+                                                    <p className="text-muted-foreground leading-relaxed">
+                                                        {edu.description}
+                                                    </p>
                                                 </div>
-                                                <p className="text-muted-foreground leading-relaxed">
-                                                    {edu.description}
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                            </motion.div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center text-muted-foreground py-12">No education records found.</p>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

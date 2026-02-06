@@ -16,6 +16,8 @@ import projectRoutes from "./routes/projectRoutes.js";
 import testimonialRoutes from "./routes/testimonialRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 
 connectDB();
 
@@ -25,6 +27,8 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/resume", resumeRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");

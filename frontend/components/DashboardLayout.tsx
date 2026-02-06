@@ -12,7 +12,9 @@ import {
     LogOut,
     Menu,
     X,
-    Shield
+    Shield,
+    GraduationCap,
+    Mail
 } from "lucide-react"
 
 interface DashboardLayoutProps {
@@ -31,9 +33,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     const menuItems = [
         { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+        { icon: Mail, label: "Messages", href: "/dashboard/messages" },
         { icon: Briefcase, label: "Services", href: "/dashboard/services" },
         { icon: FolderKanban, label: "Portfolio", href: "/dashboard/portfolio" },
         { icon: MessageSquare, label: "Testimonials", href: "/dashboard/testimonials" },
+        { icon: GraduationCap, label: "Resume", href: "/dashboard/resume" },
         { icon: Tags, label: "Categories", href: "/dashboard/categories" },
     ]
 

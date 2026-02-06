@@ -83,9 +83,8 @@ const updateProject = async (req, res) => {
 // @access  Private/Admin
 const deleteProject = async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await Project.findByIdAndDelete(req.params.id);
         if (project) {
-            await project.deleteOne();
             res.json({ message: "Project removed" });
         } else {
             res.status(404).json({ message: "Project not found" });

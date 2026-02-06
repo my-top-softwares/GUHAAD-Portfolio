@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Modal, DeleteModal } from "@/components/Modal"
-import { Plus, Edit, Trash2, FolderKanban, Heart } from "lucide-react"
+import { Plus, Edit, Trash2, FolderKanban, Heart, Loader2 } from "lucide-react"
 
 interface Category {
     _id: string
@@ -28,6 +28,7 @@ export default function PortfolioPage() {
     const [portfolios, setPortfolios] = useState<Portfolio[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null)
@@ -117,6 +118,7 @@ export default function PortfolioPage() {
         e.preventDefault()
 
         try {
+            setSubmitting(true)
             const url = selectedPortfolio
                 ? `http://localhost:5000/api/projects/${selectedPortfolio._id}`
                 : "http://localhost:5000/api/projects"
@@ -149,6 +151,8 @@ export default function PortfolioPage() {
         } catch (error) {
             console.error("Error saving portfolio:", error)
             alert("An error occurred while saving the portfolio. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -156,6 +160,7 @@ export default function PortfolioPage() {
         if (!selectedPortfolio) return
 
         try {
+            setSubmitting(true)
             const token = localStorage.getItem("token")
             const response = await fetch(`http://localhost:5000/api/projects/${selectedPortfolio._id}`, {
                 method: "DELETE",
@@ -168,9 +173,15 @@ export default function PortfolioPage() {
                 fetchPortfolios()
                 setIsDeleteModalOpen(false)
                 setSelectedPortfolio(null)
+            } else {
+                const errorData = await response.json()
+                alert(`Error: ${errorData.message || "Failed to delete portfolio. Please check your permissions."}`)
             }
         } catch (error) {
             console.error("Error deleting portfolio:", error)
+            alert("An error occurred while deleting the portfolio. Please check your connection and try again.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -492,8 +503,10 @@ export default function PortfolioPage() {
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium"
+                            disabled={submitting}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg transition-all font-medium flex items-center justify-center gap-2"
                         >
+                            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                             {selectedPortfolio ? "Update" : "Create"}
                         </button>
                     </div>

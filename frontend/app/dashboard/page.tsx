@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Briefcase, FolderKanban, MessageSquare, Tags } from "lucide-react"
+import API from "@/api/axios"
+
 import { Bar } from "react-chartjs-2"
 import {
     Chart as ChartJS,
@@ -57,16 +59,16 @@ export default function DashboardPage() {
             const token = localStorage.getItem("token")
             // Fetch all data
             const [servicesRes, projectsRes, testimonialsRes, categoriesRes] = await Promise.all([
-                fetch("http://localhost:5000/api/services", { headers: { "Authorization": `Bearer ${token}` } }),
-                fetch("http://localhost:5000/api/projects", { headers: { "Authorization": `Bearer ${token}` } }),
-                fetch("http://localhost:5000/api/testimonials", { headers: { "Authorization": `Bearer ${token}` } }),
-                fetch("http://localhost:5000/api/categories", { headers: { "Authorization": `Bearer ${token}` } }),
+                API.get("/services"),
+                API.get("/projects"),
+                API.get("/testimonials"),
+                API.get("/categories"),
             ])
 
-            const services = await servicesRes.json()
-            const projects = await projectsRes.json()
-            const testimonials = await testimonialsRes.json()
-            const categories = await categoriesRes.json()
+            const services = servicesRes.data
+            const projects = projectsRes.data
+            const testimonials = testimonialsRes.data
+            const categories = categoriesRes.data
 
             // Update stats
             setStats({
