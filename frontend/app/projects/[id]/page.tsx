@@ -75,6 +75,13 @@ export default function ProjectDetailsPage() {
             url.startsWith('data:video');
     }
 
+    const isAudio = (url: string) => {
+        return url.toLowerCase().includes('.mp3') ||
+            url.toLowerCase().includes('.wav') ||
+            url.toLowerCase().includes('.ogg') ||
+            url.startsWith('data:audio');
+    }
+
     return (
         <div className="min-h-screen bg-background pt-32 pb-20">
             <div className="container mx-auto px-4 md:px-8">
@@ -186,13 +193,23 @@ export default function ProjectDetailsPage() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="group relative rounded-2xl overflow-hidden shadow-lg bg-black aspect-video hover:shadow-2xl transition-all duration-300"
+                                    className="group relative rounded-2xl overflow-hidden shadow-lg bg-black aspect-video hover:shadow-2xl transition-all duration-300 flex items-center justify-center p-2"
                                 >
                                     {isVideo(item) ? (
                                         <video controls className="w-full h-full object-cover">
                                             <source src={item} type="video/mp4" />
                                             Your browser does not support the video tag.
                                         </video>
+                                    ) : isAudio(item) ? (
+                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-xl">
+                                            <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4 text-primary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                                            </div>
+                                            <audio controls className="w-4/5">
+                                                <source src={item} />
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </div>
                                     ) : (
                                         <img
                                             src={item}

@@ -33,7 +33,25 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/messages", messageRoutes);
+import uploadRoutes from "./routes/uploadRoutes.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+
+app.use("/api/auth", authRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/resume", resumeRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/upload", uploadRoutes);
 jobs.start();
 app.get("/", (req, res) => {
     res.send("Hello World!");

@@ -14,16 +14,16 @@ const storage = multer.diskStorage({
 
 // File filter (optional) - accept only images
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|gif|webp|svg|pdf|html|htm/;
-  const allowedMimetypes = /image\/|application\/pdf|text\/html/;
+  const allowedExtensions = /jpeg|jpg|png|gif|webp|svg|pdf|html|htm|mp4|mov|avi|wmv|mp3|wav|ogg|mpeg/;
+  const allowedMimetypes = /image\/|application\/pdf|text\/html|video\/|audio\//;
 
   const isExtensionValid = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
   const isMimetypeValid = allowedMimetypes.test(file.mimetype);
-  
+
   if (isExtensionValid || isMimetypeValid) {
     cb(null, true);
   } else {
-    cb(new Error("File type not supported. Allowed: images (jpeg, png, gif, webp, svg), HTML, and PDF."));
+    cb(new Error("File type not supported. Allowed: images, videos, audio, HTML, and PDF."));
   }
 };
 

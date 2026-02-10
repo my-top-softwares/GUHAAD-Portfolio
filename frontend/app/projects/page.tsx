@@ -68,7 +68,7 @@ export default function ProjectsPage() {
                 </motion.div>
             </div>
 
-            <div className="">
+            <div className="container mx-auto px-4 md:px-8">
                 {/* Filter Buttons */}
                 <div className="flex flex-wrap justify-center gap-4 mb-16">
                     <button

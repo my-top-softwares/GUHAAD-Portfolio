@@ -363,14 +363,25 @@ export default function PortfolioPage() {
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                         const file = e.target.files?.[0]
                                         if (file) {
-                                            const reader = new FileReader()
-                                            reader.onloadend = () => {
-                                                setFormData({ ...formData, image: reader.result as string })
+                                            try {
+                                                const uploadFormData = new FormData()
+                                                uploadFormData.append('file', file)
+                                                // Function to get Base URL from API config or default to localhost:5000
+                                                const baseURL = API.defaults.baseURL?.replace('/api', '') || "http://localhost:5000"
+
+                                                const { data } = await API.post('/upload', uploadFormData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                })
+                                                // data should be the path like /uploads/filename.ext
+                                                const fullUrl = `${baseURL}${data}`
+                                                setFormData({ ...formData, image: fullUrl })
+                                            } catch (err) {
+                                                console.error("Upload failed", err)
+                                                alert("Failed to upload image. Please try again.")
                                             }
-                                            reader.readAsDataURL(file)
                                         }
                                     }}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 file:cursor-pointer"
@@ -402,14 +413,14 @@ export default function PortfolioPage() {
 
                     {/* Gallery Section */}
                     <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
-                        <label className="block text-sm font-medium mb-2">Portfolio Gallery (More Photos/Videos)</label>
+                        <label className="block text-sm font-medium mb-2">Portfolio Gallery (Photos/Videos/Audio)</label>
                         <div className="flex gap-2 mb-3">
                             <input
                                 type="text"
                                 value={galleryInput}
                                 onChange={(e) => setGalleryInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addGalleryItem())}
-                                placeholder="Paste Image/Video URL..."
+                                placeholder="Paste Image/Video/Audio URL..."
                                 className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                             />
                             <button
@@ -423,18 +434,28 @@ export default function PortfolioPage() {
 
                         {/* Gallery File Upload */}
                         <div className="mb-4">
-                            <label className="block text-xs text-gray-500 mb-1">Add to Gallery (Upload Photo/Video)</label>
+                            <label className="block text-xs text-gray-500 mb-1">Add to Gallery (Upload Photo/Video/Audio)</label>
                             <input
                                 type="file"
-                                accept="image/*,video/*"
-                                onChange={(e) => {
+                                accept="image/*,video/*,audio/*"
+                                onChange={async (e) => {
                                     const file = e.target.files?.[0]
                                     if (file) {
-                                        const reader = new FileReader()
-                                        reader.onloadend = () => {
-                                            setFormData({ ...formData, gallery: [...formData.gallery, reader.result as string] })
+                                        try {
+                                            const uploadFormData = new FormData()
+                                            uploadFormData.append('file', file)
+                                            // Function to get Base URL from API config or default to localhost:5000
+                                            const baseURL = API.defaults.baseURL?.replace('/api', '') || "http://localhost:5000"
+
+                                            const { data } = await API.post('/upload', uploadFormData, {
+                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                            })
+                                            const fullUrl = `${baseURL}${data}`
+                                            setFormData({ ...formData, gallery: [...formData.gallery, fullUrl] })
+                                        } catch (err) {
+                                            console.error("Upload failed", err)
+                                            alert("Failed to upload file. Please try again.")
                                         }
-                                        reader.readAsDataURL(file)
                                     }
                                 }}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 file:cursor-pointer"
@@ -443,26 +464,46 @@ export default function PortfolioPage() {
 
                         {formData.gallery.length > 0 && (
                             <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-1">
-                                {formData.gallery.map((item, index) => (
-                                    <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 h-24">
-                                        <img
-                                            src={item}
-                                            alt={`Gallery ${index}`}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                // Handle video thumbnail or placeholder if not an image
-                                                (e.target as any).src = 'https://via.placeholder.com/150?text=Video/Media';
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeGalleryItem(index)}
-                                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                ))}
+                                {formData.gallery.map((item, index) => {
+                                    const isVideo = item.toLowerCase().includes('data:video') || item.toLowerCase().includes('.mp4') || item.includes('youtube.com') || item.includes('vimeo.com');
+                                    const isAudio = item.toLowerCase().includes('data:audio') || item.toLowerCase().includes('.mp3') || item.toLowerCase().includes('.wav') || item.toLowerCase().includes('.ogg');
+
+                                    return (
+                                        <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800 h-24 bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+                                            {isVideo ? (
+                                                <video src={item} className="w-full h-full object-cover" controls={false} muted />
+                                            ) : isAudio ? (
+                                                <div className="flex flex-col items-center justify-center text-gray-500 gap-1 p-2 w-full">
+                                                    <span className="text-xs uppercase font-bold">Audio</span>
+                                                    <div className="w-full h-1 bg-gray-300 rounded-full overflow-hidden">
+                                                        <div className="w-1/2 h-full bg-primary"></div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    src={item}
+                                                    alt={`Gallery ${index}`}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
+
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeGalleryItem(index)}
+                                                    className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+
+                                            {/* Type Indicator Badge */}
+                                            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px] uppercase font-bold pointer-events-none">
+                                                {isVideo ? 'Video' : isAudio ? 'Audio' : 'Image'}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
                         )}
                     </div>
