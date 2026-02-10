@@ -111,6 +111,11 @@ const importData = async () => {
                 image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60",
                 category: cat1._id,
                 likes: 120,
+                gallery: [
+                    "https://images.unsplash.com/photo-1542744094-24638eff58bb?w=800&auto=format&fit=crop&q=60",
+                    "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=60",
+                    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60"
+                ]
             },
             {
                 title: "Brand Motion Graphics",

@@ -6,6 +6,7 @@ import { ExternalLink, Github, Heart, Layers, Image as ImageIcon, Video, Loader2
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import API from "@/api/axios"
 
 interface Category {
@@ -24,6 +25,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+    const router = useRouter()
     const [projects, setProjects] = useState<Project[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [activeCategory, setActiveCategory] = useState("All")
@@ -118,7 +120,10 @@ export default function ProjectsPage() {
                                     exit={{ opacity: 0, scale: 0.8 }}
                                     transition={{ duration: 0.4 }}
                                 >
-                                    <div className="group p-5 rounded-[2rem] bg-background shadow-neu cursor-pointer hover:shadow-neu-pressed transition-all duration-500 h-full flex flex-col">
+                                    <div
+                                        onClick={() => router.push(`/projects/${project._id}`)}
+                                        className="group p-5 rounded-[2rem] bg-background shadow-neu cursor-pointer hover:shadow-neu-pressed transition-all duration-500 h-full flex flex-col"
+                                    >
                                         <div className="rounded-2xl overflow-hidden mb-6 aspect-[4/3] relative shadow-inner">
                                             {project.image ? (
                                                 <img

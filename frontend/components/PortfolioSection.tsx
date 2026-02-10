@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Heart } from "lucide-react"
+import { useRouter } from "next/navigation"
 import API from "@/api/axios"
 
 interface Category {
@@ -22,11 +23,11 @@ interface Portfolio {
 }
 
 export function PortfolioSection() {
+    const router = useRouter()
     const [portfolios, setPortfolios] = useState<Portfolio[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [selectedCategory, setSelectedCategory] = useState<string>("ALL")
     const [loading, setLoading] = useState(true)
-    const [viewingPortfolio, setViewingPortfolio] = useState<Portfolio | null>(null)
 
     useEffect(() => {
         fetchData()
@@ -136,7 +137,7 @@ export function PortfolioSection() {
                                     layout: { duration: 0.3 }
                                 }}
                                 whileHover={{ y: -8 }}
-                                onClick={() => setViewingPortfolio(item)}
+                                onClick={() => router.push(`/projects/${item._id}`)}
                                 className="group p-6 rounded-3xl bg-background shadow-neu cursor-pointer transition-all duration-500 hover:shadow-2xl"
                             >
                                 <div className="rounded-2xl overflow-hidden mb-6 aspect-[4/3] relative bg-gray-200 dark:bg-gray-800">
@@ -200,99 +201,6 @@ export function PortfolioSection() {
                             </motion.div>
                         ))}
                     </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Detailed View Modal */}
-            <AnimatePresence>
-                {viewingPortfolio && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setViewingPortfolio(null)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-4xl bg-white dark:bg-[#1e2024] rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
-                        >
-                            {/* Close Button */}
-                            <button
-                                onClick={() => setViewingPortfolio(null)}
-                                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-colors"
-                            >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-
-                            <div className="flex flex-col md:flex-row">
-                                {/* Featured Image / Gallery */}
-                                <div className="md:w-1/2 bg-gray-100 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
-                                    <div className="space-y-4 p-6">
-                                        <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-black">
-                                            {viewingPortfolio.image && (
-                                                <img
-                                                    src={viewingPortfolio.image}
-                                                    alt={viewingPortfolio.title}
-                                                    className="w-full h-full object-contain"
-                                                />
-                                            )}
-                                        </div>
-
-                                        {/* Gallery Grid */}
-                                        {viewingPortfolio.gallery && viewingPortfolio.gallery.length > 0 && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {viewingPortfolio.gallery.map((item, idx) => {
-                                                    const isVideo = item.toLowerCase().includes('.mp4') || item.includes('youtube.com') || item.includes('vimeo.com') || item.startsWith('data:video');
-                                                    return (
-                                                        <div key={idx} className="rounded-xl overflow-hidden aspect-video bg-black relative">
-                                                            {isVideo ? (
-                                                                <video controls className="w-full h-full object-cover">
-                                                                    <source src={item} type="video/mp4" />
-                                                                    Your browser does not support the video tag.
-                                                                </video>
-                                                            ) : (
-                                                                <img src={item} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                                                            )}
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Content Info */}
-                                <div className="md:w-1/2 p-8 md:p-12 space-y-6">
-                                    {viewingPortfolio.category && (
-                                        <span
-                                            className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest inline-block"
-                                            style={{
-                                                backgroundColor: viewingPortfolio.category.color + "20",
-                                                color: viewingPortfolio.category.color,
-                                            }}
-                                        >
-                                            {viewingPortfolio.category.name}
-                                        </span>
-                                    )}
-                                    <h2 className="text-3xl md:text-4xl font-black">{viewingPortfolio.title}</h2>
-                                    <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed whitespace-pre-wrap">
-                                        {viewingPortfolio.description}
-                                    </p>
-
-                                    <div className="flex items-center gap-4 pt-6 border-t border-gray-100 dark:border-gray-800">
-                                        <div className="flex items-center gap-2 text-primary font-bold">
-                                            <Heart className="w-5 h-5 fill-current" />
-                                            <span>{viewingPortfolio.likes} Likes</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
                 )}
             </AnimatePresence>
         </div>
