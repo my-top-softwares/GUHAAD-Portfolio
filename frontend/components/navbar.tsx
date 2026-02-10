@@ -58,7 +58,6 @@ export function Navbar() {
                     <div className="pl-4 border-l border-border">
                         <ModeToggle />
                     </div>
-                    <Button variant="default" className="shadow-lg shadow-primary/20 rounded-full">LOG IN</Button>
                 </div>
 
                 {/* Mobile Menu Toggle */}

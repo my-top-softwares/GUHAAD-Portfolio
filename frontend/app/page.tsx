@@ -8,6 +8,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { PortfolioSection } from "@/components/PortfolioSection"
 import API from "@/api/axios"
+const MyImage = "/perfect.png"
 
 interface Service {
   _id: string
@@ -56,6 +57,7 @@ export default function Home() {
       case 'ux': return <Palette className="w-8 h-8" />;
       case 'app': return <Monitor className="w-8 h-8" />;
       case 'web': return <Video className="w-8 h-8" />;
+      case 'video-production': return <Clapperboard className="w-8 h-8" />;
       case 'ui': return <PenTool className="w-8 h-8" />;
       case 'system': return <Layers className="w-8 h-8" />;
       case 'wireframe': return <Mic className="w-8 h-8" />;
@@ -125,7 +127,7 @@ export default function Home() {
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.8 }}
-              className="uppercase tracking-[0.3em] text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full inline-block mb-2 border border-primary/20 backdrop-blur-sm"
+              className="uppercase tracking-[0.3em] text-sm font-bold text-[#ff014f] bg-[#ff014f]/10 px-4 py-2 rounded-full inline-block mb-2 border border-[#ff014f]/20 backdrop-blur-sm"
             >
               Welcome to my creative world
             </motion.span>
@@ -136,13 +138,13 @@ export default function Home() {
               transition={{ delay: 0.3, duration: 0.8 }}
               className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter text-foreground"
             >
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 relative inline-block">
+              Hi, I'm <span className="text-[#ff014f] relative inline-block">
                 Guhaad
                 <motion.svg
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 1, duration: 1.5, ease: "easeInOut" }}
-                  className="absolute w-full h-4 -bottom-2 left-0 text-primary opacity-60"
+                  className="absolute w-full h-4 -bottom-2 left-0 text-[#ff014f] opacity-60"
                   viewBox="0 0 200 9"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -212,44 +214,44 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right Image - Premium Look */}
+          {/* Right Image - Premium Look (Redesigned) */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ delay: 0.2, duration: 1, type: "spring", bounce: 0.4 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
             className="flex-1 relative w-full flex justify-center lg:justify-end z-10"
           >
-            <div className="relative w-full max-w-[550px] aspect-[4/5] perspective-1000">
-              {/* Back glow */}
-              <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-full scale-90 -z-10 animate-pulse-slow" />
-
-              <div className="relative w-full h-full bg-background/50 backdrop-blur-sm shadow-2xl rounded-[3rem] p-6 border border-white/10 rotate-3 transition-transform duration-500 hover:rotate-0">
-                <div className="w-full h-full bg-muted/20 rounded-[2.5rem] overflow-hidden relative group">
+            <div className="relative w-full max-w-[500px] aspect-[4/5]">
+              {/* Main Card Frame */}
+              <div className="relative w-full h-full bg-white dark:bg-[#1e2024] shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[3rem] p-4 rotate-3 border border-white/20 transition-transform duration-500 hover:rotate-0">
+                <div className="w-full h-full bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] overflow-hidden relative group">
                   <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80"
+                    src={MyImage}
                     alt="Guhaad Portfolio"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale hover:grayscale-0"
+                    className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:scale-105"
                   />
-
-                  {/* Overlay Gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
 
                   {/* Floating Badge */}
                   <motion.div
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-10 -left-6 bg-background/90 backdrop-blur-md shadow-2xl p-5 rounded-2xl flex items-center gap-4 border border-white/10 max-w-[200px]"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.8 }}
+                    className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-[#1e2024]/90 backdrop-blur-md shadow-xl p-4 rounded-2xl flex items-center gap-4"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white shadow-lg shadow-primary/30">
-                      <ArrowRight className="w-6 h-6 -rotate-45" />
+                    <div className="w-12 h-12 rounded-full bg-[#ff014f] flex items-center justify-center text-white shadow-lg shadow-pink-500/30 shrink-0">
+                      <ArrowRight className="w-5 h-5 -rotate-45" />
                     </div>
                     <div>
-                      <p className="font-extrabold text-lg leading-none">150+</p>
+                      <p className="font-extrabold text-2xl leading-none text-foreground">150+</p>
                       <p className="text-xs text-muted-foreground font-bold uppercase tracking-wide mt-1">Projects Done</p>
                     </div>
                   </motion.div>
                 </div>
               </div>
+
+              {/* Decorative Elements */}
+              <div className="absolute -z-10 top-10 -right-10 w-24 h-24 bg-[#ff014f]/10 rounded-full blur-2xl" />
+              <div className="absolute -z-10 -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
             </div>
           </motion.div>
         </div>
@@ -425,77 +427,79 @@ export default function Home() {
 
       {/* Testimonial Slider Section */}
       <div className="mt-32 pb-20 border-t border-border/40 pt-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Read reviews, <br /> ride with confidence.</h2>
-          <div className="flex items-center justify-center gap-4 text-sm font-medium">
-            <span className="text-lg font-bold">4.2/5</span>
-            <div className="flex items-center gap-1 text-[#00b67a]">
-              <Star className="w-6 h-6 fill-current" />
-              <span className="text-lg font-bold text-foreground">Trustpilot</span>
-            </div>
-            <span className="text-muted-foreground">Based on 5210 reviews</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          {/* Left Header Block */}
-          <div className="lg:w-1/3 p-8">
-            <div className="text-6xl text-gray-300 md:mb-6">❝</div>
-            <h3 className="text-4xl font-bold leading-tight mb-8">What our <br /> customers are <br /> saying</h3>
-            <div className="flex gap-4">
-              <button className="w-12 h-12 rounded-full border border-gray-300 hover:border-black dark:hover:border-white flex items-center justify-center transition-colors">
-                <ArrowRight className="w-5 h-5 rotate-180" />
-              </button>
-              <button className="w-12 h-12 rounded-full border border-gray-300 hover:border-black dark:hover:border-white flex items-center justify-center transition-colors">
-                <ArrowRight className="w-5 h-5" />
-              </button>
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Read reviews, <br /> ride with confidence.</h2>
+            <div className="flex items-center justify-center gap-4 text-sm font-medium">
+              <span className="text-lg font-bold">4.2/5</span>
+              <div className="flex items-center gap-1 text-[#00b67a]">
+                <Star className="w-6 h-6 fill-current" />
+                <span className="text-lg font-bold text-foreground">Trustpilot</span>
+              </div>
+              <span className="text-muted-foreground">Based on 5210 reviews</span>
             </div>
           </div>
 
-          {/* Horizontal Slider (Framer Motion) */}
-          <div className="lg:w-2/3 overflow-hidden cursor-grab active:cursor-grabbing">
-            <motion.div
-              className="flex gap-6"
-              drag="x"
-              dragConstraints={{ right: 0, left: -600 }}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center w-full py-20">
-                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : testimonials.length > 0 ? (
-                testimonials.map((review, i) => (
-                  <div key={review._id} className="min-w-[320px] md:min-w-[350px] bg-white dark:bg-[#1e2024] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
-                    <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed min-h-[120px]">
-                      {review.message}
-                    </p>
-                    <div className="flex gap-1 text-[#00b67a] mb-6">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-300"}`} />
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      {review.image ? (
-                        <img src={review.image} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                          {review.name.charAt(0)}
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            {/* Left Header Block */}
+            <div className="lg:w-1/3 p-8">
+              <div className="text-6xl text-gray-300 md:mb-6">❝</div>
+              <h3 className="text-4xl font-bold leading-tight mb-8">What our <br /> customers are <br /> saying</h3>
+              <div className="flex gap-4">
+                <button className="w-12 h-12 rounded-full border border-gray-300 hover:border-black dark:hover:border-white flex items-center justify-center transition-colors">
+                  <ArrowRight className="w-5 h-5 rotate-180" />
+                </button>
+                <button className="w-12 h-12 rounded-full border border-gray-300 hover:border-black dark:hover:border-white flex items-center justify-center transition-colors">
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Horizontal Slider (Framer Motion) */}
+            <div className="lg:w-2/3 overflow-hidden cursor-grab active:cursor-grabbing">
+              <motion.div
+                className="flex gap-6"
+                drag="x"
+                dragConstraints={{ right: 0, left: -600 }}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center w-full py-20">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : testimonials.length > 0 ? (
+                  testimonials.map((review, i) => (
+                    <div key={review._id} className="min-w-[320px] md:min-w-[350px] bg-white dark:bg-[#1e2024] p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800">
+                      <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed min-h-[120px]">
+                        {review.message}
+                      </p>
+                      <div className="flex gap-1 text-[#00b67a] mb-6">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-300"}`} />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {review.image ? (
+                          <img src={review.image} alt={review.name} className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {review.name.charAt(0)}
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="font-bold text-sm">{review.name}</h4>
+                          <span className="text-xs text-muted-foreground">{review.position || review.company}</span>
                         </div>
-                      )}
-                      <div>
-                        <h4 className="font-bold text-sm">{review.name}</h4>
-                        <span className="text-xs text-muted-foreground">{review.position || review.company}</span>
                       </div>
                     </div>
-                  </div>
 
-                ))
-              ) : (
-                <div className="flex items-center justify-center w-full py-20 text-muted-foreground">
-                  No testimonials found.
-                </div>
-              )}
-            </motion.div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center w-full py-20 text-muted-foreground">
+                    No testimonials found.
+                  </div>
+                )}
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>

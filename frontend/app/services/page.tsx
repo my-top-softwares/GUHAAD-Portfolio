@@ -54,23 +54,7 @@ export default function ServicesPage() {
         window.open(whatsappUrl, '_blank')
     }
     return (
-        <div className="min-h-screen bg-background pt-20">
-            {/* Header */}
-            <div className="py-12 md:py-20 text-center space-y-2 relative">
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <span className="uppercase text-primary text-xs font-bold tracking-widest">My Expertise</span>
-                    <h1 className="text-4xl md:text-6xl font-bold text-foreground mt-2">What I Do</h1>
-                    <div className="flex justify-center gap-2 text-sm text-muted-foreground mt-4">
-                        <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                        <span className="text-primary">{'>'}</span>
-                        <span className="text-primary font-medium">Services</span>
-                    </div>
-                </motion.div>
-            </div>
+        <div className="min-h-screen bg-background pt-20 mt-16">
 
             {/* Services Grid */}
             <div className="container mx-auto px-4 md:px-8 mb-32">

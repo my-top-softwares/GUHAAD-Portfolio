@@ -27,28 +27,34 @@ const importData = async () => {
 
         await Service.create([
             {
-                title: "Graphic Design",
-                description: "Creative designs for Social Media, Posters, and wide-ranging Marketing Creatives that capture attention.",
+                title: "Motion & Product Animations",
+                description: "High-quality motion graphics and product animations designed to showcase products, explain ideas, and elevate brand storytelling.",
+                icon: "web",
+                price: 150
+            },
+            {
+                title: "Explainer Animations",
+                description: "Clear and engaging explainer animations that simplify complex messages and help audiences understand quickly.",
+                icon: "app",
+                price: 140
+            },
+            {
+                title: "Videography & Camera Work",
+                description: "Professional camera work and video production for interviews, promotional videos, events, and branded content.",
+                icon: "video-production",
+                price: 200
+            },
+            {
+                title: "Graphic Design & Branding",
+                description: "Creative graphic design and brand identity solutions including logos, social media designs, and marketing visuals.",
                 icon: "ux",
                 price: 100
             },
             {
-                title: "Branding & Identity",
-                description: "Complete Brand Systems, Logos, and Guidelines to establish a strong and memorable market presence.",
-                icon: "system",
-                price: 150
-            },
-            {
-                title: "Motion Graphics & Video",
-                description: "High-quality video production and motion graphics that bring your stories to life.",
-                icon: "web",
-                price: 120
-            },
-            {
-                title: "Content & Voice Over",
-                description: "Professional Content Writing and Voice Over Production to convey your message clearly.",
+                title: "Voice Over & Media Editing",
+                description: "Professional voice-over, audio production, and podcast editing for clean, clear, and high-quality media content.",
                 icon: "wireframe",
-                price: 50
+                price: 80
             }
         ]);
 

@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Download, Figma, Video, PenTool, Mic, Clapperboard, Layers, Briefcase, GraduationCap, Calendar, Loader2, Monitor, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import API from "@/api/axios"
+const MyImage = "/perfect.png"
 
 interface ResumeItem {
     _id: string;
@@ -85,11 +85,6 @@ export default function AboutPage() {
                     transition={{ duration: 0.5 }}
                 >
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight">About Me</h1>
-                    <div className="flex justify-center gap-2 text-sm text-muted-foreground mt-4">
-                        <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                        <span className="text-primary">{'>'}</span>
-                        <span className="text-primary font-medium">About Me</span>
-                    </div>
                 </motion.div>
                 {/* Decorative Background Pattern */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
@@ -112,7 +107,7 @@ export default function AboutPage() {
                             <div className="absolute inset-0 bg-background shadow-neu rounded-full z-10" />
                             <div className="relative z-20 w-full h-full rounded-full border-8 border-background overflow-hidden shadow-neu-pressed">
                                 <img
-                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=60"
+                                    src={MyImage}
                                     alt="Mohamud Mohamed Adan"
                                     className="w-full h-full object-cover"
                                 />
