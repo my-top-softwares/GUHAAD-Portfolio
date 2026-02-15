@@ -32,7 +32,7 @@ const getProjectById = async (req, res) => {
 // @route   POST /api/projects
 // @access  Private/Admin
 const createProject = async (req, res) => {
-    const { title, description, image, link, technologies, category, likes, gallery } = req.body;
+    const { title, description, image, link, technologies, category, likes, gallery, projectType } = req.body;
     try {
         const project = new Project({
             title,
@@ -42,7 +42,8 @@ const createProject = async (req, res) => {
             technologies,
             category,
             likes,
-            gallery
+            gallery,
+            projectType
         });
         const createdProject = await project.save();
         res.status(201).json(createdProject);
@@ -55,7 +56,7 @@ const createProject = async (req, res) => {
 // @route   PUT /api/projects/:id
 // @access  Private/Admin
 const updateProject = async (req, res) => {
-    const { title, description, image, link, technologies, category, likes, gallery } = req.body;
+    const { title, description, image, link, technologies, category, likes, gallery, projectType } = req.body;
     try {
         const project = await Project.findById(req.params.id);
         if (project) {
@@ -67,6 +68,7 @@ const updateProject = async (req, res) => {
             project.category = category || project.category;
             project.likes = likes !== undefined ? likes : project.likes;
             project.gallery = gallery || project.gallery;
+            project.projectType = projectType || project.projectType;
 
             const updatedProject = await project.save();
             res.json(updatedProject);

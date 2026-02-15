@@ -22,6 +22,7 @@ interface Portfolio {
     likes: number
     technologies: string[]
     gallery?: string[]
+    projectType?: 'image' | 'video'
     createdAt: string
 }
 
@@ -36,6 +37,7 @@ export default function PortfolioPage() {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
+        projectType: "image",
         image: "",
         link: "",
         category: "",
@@ -77,6 +79,7 @@ export default function PortfolioPage() {
             setFormData({
                 title: portfolio.title,
                 description: portfolio.description,
+                projectType: portfolio.projectType || "image",
                 image: portfolio.image || "",
                 link: portfolio.link || "",
                 category: portfolio.category?._id || "",
@@ -86,7 +89,7 @@ export default function PortfolioPage() {
             })
         } else {
             setSelectedPortfolio(null)
-            setFormData({ title: "", description: "", image: "", link: "", category: "", likes: 0, technologies: "", gallery: [] })
+            setFormData({ title: "", description: "", projectType: "image", image: "", link: "", category: "", likes: 0, technologies: "", gallery: [] })
         }
         setGalleryInput("")
         setIsModalOpen(true)
@@ -95,7 +98,7 @@ export default function PortfolioPage() {
     const handleCloseModal = () => {
         setIsModalOpen(false)
         setSelectedPortfolio(null)
-        setFormData({ title: "", description: "", image: "", link: "", category: "", likes: 0, technologies: "", gallery: [] })
+        setFormData({ title: "", description: "", projectType: "image", image: "", link: "", category: "", likes: 0, technologies: "", gallery: [] })
         setGalleryInput("")
     }
 
@@ -206,11 +209,26 @@ export default function PortfolioPage() {
                             >
                                 {portfolio.image && (
                                     <div className="aspect-video overflow-hidden bg-gray-200 dark:bg-gray-800">
-                                        <img
-                                            src={portfolio.image}
-                                            alt={portfolio.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                        />
+                                        {(portfolio.projectType === 'video' ||
+                                            portfolio.image.toLowerCase().includes('.mp4') ||
+                                            portfolio.image.toLowerCase().includes('.webm') ||
+                                            portfolio.image.toLowerCase().includes('.mov')) ? (
+                                            <video
+                                                src={portfolio.image}
+                                                className="w-full h-full object-cover"
+                                                controls={false}
+                                                muted
+                                                loop
+                                                autoPlay
+                                                playsInline
+                                            />
+                                        ) : (
+                                            <img
+                                                src={portfolio.image}
+                                                alt={portfolio.title}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                            />
+                                        )}
                                     </div>
                                 )}
                                 <div className="p-6">
@@ -314,21 +332,60 @@ export default function PortfolioPage() {
                             />
                         </div>
                     </div>
+
+                    {/* Project Type Selector */}
                     <div>
-                        <label className="block text-sm font-medium mb-2">Image</label>
+                        <label className="block text-sm font-medium mb-2">Project Type</label>
+                        <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="projectType"
+                                    value="image"
+                                    checked={formData.projectType === 'image'}
+                                    onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
+                                    className="accent-primary w-4 h-4"
+                                />
+                                <span className="text-gray-700 dark:text-gray-300">Image</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="projectType"
+                                    value="video"
+                                    checked={formData.projectType === 'video'}
+                                    onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
+                                    className="accent-primary w-4 h-4"
+                                />
+                                <span className="text-gray-700 dark:text-gray-300">Video</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-2">Project Media (Image or Video)</label>
                         <div className="space-y-3">
-                            {/* Image Preview */}
+                            {/* Media Preview */}
                             {formData.image && (
                                 <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                    <img
-                                        src={formData.image}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                    />
+                                    {(formData.image.toLowerCase().includes('.mp4') ||
+                                        formData.image.toLowerCase().includes('.webm') ||
+                                        formData.image.toLowerCase().includes('.mov')) ? (
+                                        <video
+                                            src={formData.image}
+                                            className="w-full h-full object-cover"
+                                            controls
+                                        />
+                                    ) : (
+                                        <img
+                                            src={formData.image}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    )}
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, image: "" })}
-                                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors z-10"
                                     >
                                         ×
                                     </button>
@@ -337,12 +394,12 @@ export default function PortfolioPage() {
 
                             {/* URL Input */}
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">Image URL</label>
+                                <label className="block text-xs text-gray-500 mb-1">Media URL</label>
                                 <input
                                     type="text"
                                     value={formData.image}
                                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                    placeholder="https://example.com/image.jpg"
+                                    placeholder="https://example.com/image.jpg or video.mp4"
                                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                                 />
                             </div>
@@ -359,10 +416,10 @@ export default function PortfolioPage() {
 
                             {/* File Upload */}
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">Upload Image</label>
+                                <label className="block text-xs text-gray-500 mb-1">Upload File</label>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/*,video/*"
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0]
                                         if (file) {
@@ -380,13 +437,13 @@ export default function PortfolioPage() {
                                                 setFormData({ ...formData, image: fullUrl })
                                             } catch (err) {
                                                 console.error("Upload failed", err)
-                                                alert("Failed to upload image. Please try again.")
+                                                alert("Failed to upload file. Please try again.")
                                             }
                                         }
                                     }}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#0a0a0a] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 file:cursor-pointer"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Supported formats: JPG, PNG, GIF, WebP</p>
+                                <p className="text-xs text-gray-500 mt-1">Supported formats: Images (JPG, PNG, GIF) & Videos (MP4, WebM)</p>
                             </div>
                         </div>
                     </div>

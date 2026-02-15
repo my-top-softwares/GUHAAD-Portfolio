@@ -9,6 +9,11 @@ const projectSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    projectType: {
+        type: String,
+        enum: ['image', 'video'],
+        default: 'image'
+    },
     image: {
         type: String, // URL
     },
