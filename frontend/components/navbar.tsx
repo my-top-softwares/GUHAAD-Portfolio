@@ -1,120 +1,109 @@
-"use client"
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import image from "/logo.png";
+import { useTheme } from "./ThemeProvider";
+import { FiMoon, FiSun } from "react-icons/fi";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+export default function Navbar() {
+    const pathname = usePathname();
+    const { theme, toggleTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
+    // Prevent hydration mismatch
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-const navItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
-    { name: "Portfolio", href: "/projects" }, // Renamed to Portfolio but keeping /projects route for now as per structure
-    { name: "Contact", href: "/contact" },
-]
+    const links = [
+        { name: "Home", href: "/" },
+        { name: "About", href: "/about" },
+        { name: "Portfolio", href: "/portfolio" },
+        { name: "Gallery", href: "/gallery" },
+        { name: "Services", href: "/services" },
+        { name: "Contact", href: "/contact" },
+    ];
 
-export function Navbar() {
-    const [isOpen, setIsOpen] = React.useState(false)
-    const pathname = usePathname()
-
-    // Close mobile menu when route changes
-    React.useEffect(() => {
-        setIsOpen(false)
-    }, [pathname])
+    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
     return (
-        <nav className="fixed top-0 z-50 w-full bg-white/90 dark:bg-background/90 backdrop-blur-md border-b border-gray-100 dark:border-border/40 transition-colors duration-300">
-            <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-8 relative">
+        <>
+            <nav className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] md:w-[85%] lg:w-[75%] z-[100] px-8 py-4 flex justify-between items-center glass rounded-3xl border border-white/5 shadow-2xl overflow-hidden transition-colors duration-500">
 
-                {/* Logo Section */}
-                <Link href="/" className="flex items-center gap-2 group z-20">
-                    <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                        <span className="font-bold text-lg">G</span>
-                    </div>
-                    <span className="font-bold text-2xl text-emerald-800 dark:text-emerald-400 tracking-tight group-hover:text-emerald-600 transition-colors">
-                        GUHAAD
-                    </span>
-                </Link>
+                <a href="/">
+                    <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-2 select-none">GUHAAD</span>
+                </a>
 
-                {/* Desktop Navigation - Centered */}
-                <div className="hidden md:flex md:items-center md:space-x-8 absolute left-1/2 -translate-x-1/2">
-                    {navItems.map((item) => (
+                {/* Desktop Menu */}
+                <div className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wide">
+                    {links.map((link) => (
                         <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "text-sm font-medium transition-all duration-300 relative py-1 hover:text-emerald-600 dark:hover:text-emerald-400",
-                                pathname === item.href
-                                    ? "text-emerald-700 dark:text-emerald-400 font-bold"
-                                    : "text-gray-600 dark:text-gray-300"
-                            )}
+                            key={link.name}
+                            href={link.href}
+                            className={`${pathname === link.href ? "text-accent" : "text-text-dim"
+                                } relative transition-all hover:text-foreground hover:translate-y-[-2px] ${pathname === link.href ? "after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-accent" : ""
+                                }`}
                         >
-                            {item.name}
-                            {pathname === item.href && (
-                                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-emerald-600 rounded-full" />
-                            )}
+                            {link.name}
                         </Link>
                     ))}
                 </div>
 
-                {/* Right Side - Mode Toggle & Mobile Menu */}
-                <div className="flex items-center gap-4 z-20">
-                    <div className="hidden md:block">
-                        <Link href="/contact">
-                            <Button className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-6">
-                                Get in Touch
-                            </Button>
+                <div className="hidden md:flex items-center gap-4">
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                        aria-label="Toggle Theme"
+                    >
+                        {mounted && theme === 'dark' ? <FiMoon size={20} /> : <FiSun size={20} className="text-amber-500" />}
+                    </button>
+
+                    <Link href="/contact" className="btn-secondary text-xs py-3 px-6 rounded-xl hover:shadow-accent/40 shadow-lg">START TALKING</Link>
+                </div>
+
+                {/* Mobile Menu Toggle */}
+                <div className="flex md:hidden items-center gap-4">
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                        aria-label="Toggle Theme"
+                    >
+                        {mounted && theme === 'dark' ? <FiMoon size={20} /> : <FiSun size={20} className="text-amber-500" />}
+                    </button>
+                    <button onClick={toggleMobileMenu} className="text-foreground p-2">
+                        {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                    </button>
+                </div>
+            </nav>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 z-[99] bg-background/95 backdrop-blur-xl flex flex-col items-center justify-center animate-in fade-in slide-in-from-top-10 duration-300">
+                    <div className="flex flex-col items-center gap-8 text-xl font-black uppercase tracking-widest">
+                        {links.map((link) => (
+                            <Link
+                                key={link.name}
+                                href={link.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`${pathname === link.href ? "text-accent" : "text-text-dim"
+                                    } hover:text-foreground transition-colors`}
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
+                        <Link
+                            href="/contact"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="btn-primary text-[12px] py-4 px-8 rounded-xl mt-8"
+                        >
+                            START TALKING
                         </Link>
                     </div>
-                    <div className="pl-2">
-                        <ModeToggle />
-                    </div>
-
-                    {/* Mobile Menu Toggle */}
-                    <div className="md:hidden">
-                        <div
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-200 cursor-pointer active:scale-95 transition-transform"
-                        >
-                            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                        </div>
-                    </div>
                 </div>
-            </div>
-
-            {/* Mobile Navigation */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden border-b bg-white dark:bg-background overflow-hidden shadow-xl"
-                    >
-                        <div className="container mx-auto px-4 py-6 space-y-2">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "block px-4 py-3 text-base font-medium transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-lg",
-                                        pathname === item.href
-                                            ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400"
-                                            : "text-gray-600 dark:text-gray-300"
-                                    )}
-                                >
-                                    {item.name}
-                                </Link>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </nav>
-    )
+            )}
+        </>
+    );
 }

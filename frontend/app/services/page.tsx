@@ -1,153 +1,189 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-
-import { motion } from "framer-motion"
-import { Palette, Layers, Video, Mic, Check, Monitor, PenTool, Loader2 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import API from "@/api/axios"
+import { useState, useEffect } from "react";
+import { FaCheck, FaRocket, FaGem, FaCrown, FaArrowRight, FaClock } from "react-icons/fa";
+import Link from "next/link";
+import API from "@/utils/api";
 
 interface Service {
-    _id: string
-    title: string
-    description: string
-    price: number
-    features: string[]
-    icon: string
+    _id: string;
+    title: string;
+    description: string;
+    monthlyPrice: number;
+    annuallyPrice: number;
+    isPopular: boolean;
+    features: string[];
+    icon: string;
 }
 
 export default function ServicesPage() {
-    const [services, setServices] = useState<Service[]>([])
-    const [loading, setLoading] = useState(true)
+    const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "ANNUALLY">("MONTHLY");
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                const { data } = await API.get("/services")
-                setServices(data)
+                const { data } = await API.get("/services");
+                setServices(data);
+                setLoading(false);
             } catch (error) {
-                console.error("Error fetching services:", error)
-            } finally {
-                setLoading(false)
+                console.error("Error fetching services:", error);
+                setLoading(false);
             }
-        }
-        fetchServices()
-    }, [])
+        };
+        fetchServices();
+    }, []);
 
-    const getIcon = (iconName: string) => {
-        switch (iconName) {
-            case 'ux': return <Palette className="w-10 h-10" />;
-            case 'app': return <Monitor className="w-10 h-10" />;
-            case 'web': return <Video className="w-10 h-10" />;
-            case 'ui': return <PenTool className="w-10 h-10" />;
-            case 'system': return <Layers className="w-10 h-10" />;
-            case 'wireframe': return <Mic className="w-10 h-10" />;
-            default: return <Palette className="w-10 h-10" />;
-        }
-    }
+    const getIcon = (name: string) => {
+        const n = name.toLowerCase();
+        if (n.includes('starter')) return FaRocket;
+        if (n.includes('premium')) return FaGem;
+        if (n.includes('ultimate')) return FaCrown;
+        return FaClock;
+    };
 
-    const handleOrderWhatsApp = (service: Service) => {
-        const message = `Hi, I want to order the *${service.title}* package ($${service.price})`
-        const whatsappUrl = `https://wa.me/252618240346?text=${encodeURIComponent(message)}`
-        window.open(whatsappUrl, '_blank')
-    }
     return (
-        <div className="min-h-screen bg-background pt-20 mt-16">
-
-            {/* Services Grid */}
-            <div className="container mx-auto px-4 md:px-8 mb-32">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {loading ? (
-                        <div className="col-span-full flex justify-center py-20">
-                            <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                        </div>
-                    ) : services.length > 0 ? (
-                        services.map((service, index) => (
-                            <motion.div
-                                key={service._id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1, duration: 0.5 }}
-                                className="group"
-                            >
-                                <div className="h-full p-6 md:p-8 rounded-[2rem] bg-background shadow-neu hover:shadow-neu-pressed transition-all duration-500 flex flex-col items-center text-center">
-                                    <div className="mb-6 p-5 rounded-full bg-background shadow-neu text-primary group-hover:scale-110 transition-transform duration-300">
-                                        {getIcon(service.icon)}
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-4 text-foreground leading-tight">
-                                        {service.title}
-                                    </h3>
-                                    <p className="text-muted-foreground text-base leading-relaxed line-clamp-4">
-                                        {service.description}
-                                    </p>
-                                </div>
-                            </motion.div>
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center py-10 text-muted-foreground">
-                            No services available.
-                        </div>
-                    )}
-                </div>
+        <section className="relative py-40 px-6 md:px-12 lg:px-24 min-h-screen bg-background">
+            {/* Background elements */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-accent/5 rounded-full blur-[160px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px]"></div>
             </div>
 
-            {/* Pricing Section */}
-            <div className="container mx-auto px-4 md:px-8 mb-32">
-                <div className="text-center mb-16">
-                    <span className="uppercase text-primary text-xs font-bold tracking-widest">Pricing</span>
-                    <h2 className="text-3xl md:text-5xl font-bold text-foreground mt-2">Packages & Pricing</h2>
+            <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-24 animate-fade-up">
+                    <div className="inline-flex items-center gap-4 px-6 py-2 rounded-full glass border border-white/5 shadow-lg mb-8">
+                        <span className="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">Professional Packages</span>
+                    </div>
+                    <h1 className="text-5xl md:text-8xl font-black mb-6 leading-none tracking-tighter uppercase">
+                        CHOOSE YOUR <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-2 italic">STRATEGY.</span>
+                    </h1>
+                    <p className="text-text-dim text-lg max-w-xl mx-auto font-medium leading-relaxed">Premium packages tailored to elevate your brand with precision and creative excellence.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-                    {loading ? (
-                        <div className="col-span-full flex justify-center py-10">
-                            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                        </div>
-                    ) : services.length > 0 ? (
-                        services.map((pkg, index) => (
-                            <motion.div
-                                key={pkg._id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Card className="items-center text-center h-full border-none shadow-neu hover:shadow-neu-pressed transition-all duration-300 bg-background">
-                                    <CardHeader>
-                                        <CardTitle className="text-xl font-bold text-muted-foreground uppercase tracking-wider">{pkg.title} PACKAGE</CardTitle>
-                                        <div className="text-4xl font-bold text-primary py-4">${pkg.price}</div>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <ul className="space-y-4 text-left inline-block">
-                                            {pkg.features?.map((feat, i) => (
-                                                <li key={i} className="flex items-center gap-3 text-muted-foreground">
-                                                    <Check className="w-5 h-5 text-primary" />
-                                                    {feat}
+                {/* Plan Toggle */}
+                <div className="flex justify-center mb-24 animate-fade-up stagger-1">
+                    <div className="glass p-2 rounded-[40px] flex items-center gap-1 border border-white/5 shadow-2xl">
+                        <button
+                            onClick={() => setBillingCycle("MONTHLY")}
+                            className={`px-10 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-3xl transition-all duration-500 ${
+                                billingCycle === "MONTHLY"
+                                    ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-xl shadow-accent/25 scale-105"
+                                    : "text-text-dim hover:text-foreground"
+                            }`}
+                        >
+                            Monthly
+                        </button>
+                        <button
+                            onClick={() => setBillingCycle("ANNUALLY")}
+                            className={`px-10 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-3xl transition-all duration-500 ${
+                                billingCycle === "ANNUALLY"
+                                    ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-xl shadow-accent/25 scale-105"
+                                    : "text-text-dim hover:text-foreground"
+                            }`}
+                        >
+                            Annually <span className="text-emerald-400 text-[8px] font-black">SAVE 20%</span>
+                        </button>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                        {services.map((plan, i) => {
+                            const Icon = getIcon(plan.title);
+                            const currentPrice = billingCycle === "MONTHLY" ? plan.monthlyPrice : plan.annuallyPrice;
+
+                            return (
+                                <div
+                                    key={plan._id}
+                                    className={`group relative bg-card-bg rounded-[48px] flex flex-col transition-all duration-700 hover:-translate-y-6 hover:shadow-2xl animate-fade-up border overflow-hidden ${
+                                        plan.isPopular
+                                            ? 'border-accent/40 shadow-2xl shadow-accent/10 scale-105 z-10'
+                                            : 'border-white/5'
+                                    }`}
+                                    style={{ animationDelay: `${i * 0.1}s` }}
+                                >
+                                    {plan.isPopular && (
+                                        <div className="absolute -top-px left-0 right-0 h-1 bg-gradient-to-r from-accent to-accent-2"></div>
+                                    )}
+                                    {plan.isPopular && (
+                                        <div className="absolute top-6 right-6 bg-gradient-to-r from-accent to-accent-2 text-white text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-lg z-20">
+                                            MOST POPULAR
+                                        </div>
+                                    )}
+
+                                    <div className="p-12 pb-8 relative">
+                                        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-accent/10 to-accent-2/5 rounded-bl-[80px] -z-0 group-hover:scale-110 transition-transform"></div>
+
+                                        <div className="flex justify-between items-start mb-10 relative z-10">
+                                            <div>
+                                                <h3 className="text-3xl font-black uppercase tracking-tighter mb-1 text-foreground">{plan.title}</h3>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent italic">{plan.description}</p>
+                                            </div>
+                                            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 ${
+                                                plan.isPopular
+                                                    ? 'bg-gradient-to-br from-accent to-accent-2 shadow-lg shadow-accent/30'
+                                                    : 'bg-white/5 border border-white/10'
+                                            }`}>
+                                                <Icon className={`text-3xl ${plan.isPopular ? 'text-white' : 'text-accent'} group-hover:scale-110 transition-transform`} />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-baseline gap-2 mb-8 relative z-10">
+                                            <span className="text-6xl font-black tracking-tighter text-foreground">
+                                                ${currentPrice}
+                                            </span>
+                                            <span className="text-text-dim font-black text-[10px] uppercase tracking-[0.2em]">
+                                                {billingCycle === "MONTHLY" ? "/Month" : "/Year"}
+                                            </span>
+                                        </div>
+                                        <div className={`h-1 w-full rounded-full ${
+                                            plan.isPopular
+                                                ? 'bg-gradient-to-r from-accent to-accent-2'
+                                                : 'bg-white/5'
+                                        }`}></div>
+                                    </div>
+
+                                    <div className="p-12 pt-4 flex-grow">
+                                        <ul className="space-y-6">
+                                            {plan.features.map((feature, idx) => (
+                                                <li key={idx} className="flex items-start gap-4 text-text-dim group/item hover:text-foreground transition-colors">
+                                                    <div className="w-7 h-7 rounded-xl bg-foreground/5 flex items-center justify-center group-hover/item:bg-accent/10 group-hover/item:border-accent transition-all shrink-0 border border-transparent">
+                                                        <FaCheck className="text-accent text-xs" />
+                                                    </div>
+                                                    <span className="text-sm font-bold uppercase tracking-tight">{feature}</span>
                                                 </li>
                                             ))}
                                         </ul>
-                                    </CardContent>
-                                    <CardFooter className="justify-center pb-8">
-                                        <Button
-                                            onClick={() => handleOrderWhatsApp(pkg)}
-                                            className="bg-background text-primary border border-primary/20 hover:bg-primary hover:text-white shadow-neu-active w-full py-6 text-lg rounded-xl transition-all"
+                                    </div>
+
+                                    <div className="p-10 text-center relative z-10">
+                                        <Link
+                                            href={`https://wa.me/252618240346?text=Hello, I am interested in the ${plan.title} package (${billingCycle} billing)`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`w-full py-5 rounded-2xl block font-black uppercase tracking-[0.2em] text-xs transition-all duration-500 ${
+                                                plan.isPopular
+                                                    ? 'bg-gradient-to-r from-accent to-accent-2 text-white shadow-xl shadow-accent/30 hover:scale-[1.03] hover:shadow-accent/50'
+                                                    : 'bg-white/5 text-foreground hover:bg-white/10 border border-white/10'
+                                            }`}
                                         >
-                                            ORDER NOW
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            </motion.div>
-                        ))
-                    ) : (
-                        <div className="col-span-full text-center py-10 text-muted-foreground">
-                            No packages available.
-                        </div>
-                    )}
-                </div>
+                                            GET STARTED <FaArrowRight className="inline ml-2" />
+                                        </Link>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
-        </div>
-    )
+        </section>
+    );
 }

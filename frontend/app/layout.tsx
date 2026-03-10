@@ -1,55 +1,35 @@
-"use client"
-
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { usePathname } from "next/navigation";
+import LayoutWrapper from "@/components/LayoutWrapper";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "react-hot-toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-function LayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/dashboard");
-
-  return (
-    <div className="relative flex min-h-screen flex-col">
-      {!isAuthPage && <Navbar />}
-      <main className={isAuthPage ? "flex-1" : "flex-1"}>{children}</main>
-      {!isAuthPage && <Footer />}
-    </div>
-  );
-}
+export const metadata: Metadata = {
+    title: "GUHAAD | Creatives",
+    description: "Personal portfolio of Guhaad, a passionate Creatives based in the Philippines.",
+};
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <LayoutContent>{children}</LayoutContent>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+            <body className="antialiased font-outfit overflow-x-hidden transition-colors duration-500" suppressHydrationWarning>
+                <ThemeProvider>
+                    <Toaster position="top-center" reverseOrder={false} />
+                    {/* Global Background Decorations - Adjust for theme sensitivity if needed */}
+                    <div className="fixed inset-0 pointer-events-none -z-50 overflow-hidden">
+                        <div className="absolute top-[10%] right-[-10%] w-[800px] h-[800px] bg-accent/20 rounded-full blur-[160px] animate-pulse"></div>
+                        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-accent/10 rounded-full blur-[140px]"></div>
+                    </div>
+
+                    <LayoutWrapper>
+                        {children}
+                    </LayoutWrapper>
+                </ThemeProvider>
+            </body>
+        </html>
+    );
 }
