@@ -294,7 +294,7 @@ export default function UsersPage() {
                 onClose={() => setConfirmOpen(false)}
                 onConfirm={handleDelete}
                 title="Delete User?"
-                message="Are you sure you want to revoke this user's registry access? They will no longer be able to manage the portfolio."
+                message="Are you sure you want to revoke this user&apos;s registry access? They will no longer be able to manage the portfolio."
             />
         </div>
     );

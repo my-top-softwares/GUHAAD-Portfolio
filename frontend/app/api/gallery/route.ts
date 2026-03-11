@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+
 import connectDB from "@/lib/db";
 import Gallery from "@/lib/models/Gallery";
 import { adminProtect } from "@/lib/auth";

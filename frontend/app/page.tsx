@@ -193,7 +193,7 @@ export default function Home() {
                     <div className="absolute inset-0 bg-accent/5 -z-10 group-hover:scale-110 transition-transform duration-1000"></div>
                     <div className="relative z-10">
                         <h2 className="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-12 leading-[0.8]">
-                            LET'S <br /> CREATE <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-2 italic">IMPACT.</span>
+                            LET&apos;S <br /> CREATE <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-2 italic">IMPACT.</span>
                         </h2>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
                             <Link href="/contact" className="btn-primary px-12 py-6 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all hover:px-16">START A PROJECT</Link>

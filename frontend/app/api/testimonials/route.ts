@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+
 import connectDB from "@/lib/db";
 import Testimonial from "@/lib/models/Testimonial";
 import { adminProtect } from "@/lib/auth";

@@ -71,7 +71,7 @@ export async function PUT(
 
         // Handle Gallery
         const existingGallery = formData.get("existingGallery") ? JSON.parse(formData.get("existingGallery") as string) : [];
-        let updatedGallery = [...existingGallery];
+        const updatedGallery = [...existingGallery];
 
         const galleryFiles = formData.getAll("galleryFiles") as File[];
         for (const file of galleryFiles) {
