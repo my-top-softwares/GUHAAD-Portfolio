@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import image from "/logo.png";
 import { useTheme } from "./ThemeProvider";
 import { FiMoon, FiSun } from "react-icons/fi";
 import { FaBars, FaTimes } from "react-icons/fa";
