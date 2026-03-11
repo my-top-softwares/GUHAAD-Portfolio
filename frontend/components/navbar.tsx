@@ -56,6 +56,7 @@ export default function Navbar() {
                         onClick={toggleTheme}
                         className="p-2 rounded-full hover:bg-white/10 transition-colors"
                         aria-label="Toggle Theme"
+                        suppressHydrationWarning
                     >
                         {mounted && theme === 'dark' ? <FiMoon size={20} /> : <FiSun size={20} className="text-amber-500" />}
                     </button>
@@ -69,6 +70,7 @@ export default function Navbar() {
                         onClick={toggleTheme}
                         className="p-2 rounded-full hover:bg-white/10 transition-colors"
                         aria-label="Toggle Theme"
+                        suppressHydrationWarning
                     >
                         {mounted && theme === 'dark' ? <FiMoon size={20} /> : <FiSun size={20} className="text-amber-500" />}
                     </button>
