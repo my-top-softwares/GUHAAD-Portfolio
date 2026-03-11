@@ -69,7 +69,7 @@ export default function AboutPage() {
                                 <div className="w-full h-full rounded-full overflow-hidden bg-background p-1.5">
                                     <div className="w-full h-full rounded-full overflow-hidden relative group grayscale hover:grayscale-0 transition-all duration-1000">
                                         <Image
-                                            src="/image.jpeg"
+                                            src="/Image.jpeg"
                                             alt="About Profile"
                                             fill
                                             className="object-cover brightness-105 contrast-110 transition-transform duration-1000 group-hover:scale-110"

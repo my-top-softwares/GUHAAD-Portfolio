@@ -6,7 +6,7 @@ import { useTheme } from "./ThemeProvider";
 
 
 export default function Footer() {
-    const { theme, toggleTheme } = useTheme();
+    const { theme } = useTheme();
     return (
         <footer className="relative text-foreground py-24 w-full overflow-hidden flex flex-col items-center border-t border-white/5" style={{background: 'var(--primary)'}}>
             {/* Gradient orbs */}

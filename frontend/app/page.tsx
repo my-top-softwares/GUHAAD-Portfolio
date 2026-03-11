@@ -1,12 +1,12 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaMousePointer, FaAward, FaUsers, FaRocket, FaGithub, FaDribbble, FaLinkedinIn, FaBehance } from "react-icons/fa";
 import TestimonialsSlider from "@/components/TestimonialsSlider";
 import GallerySection from "@/components/GallerySection";
-import { useTheme } from "@/components/ThemeProvider";
 
 export default function Home() {
-    // const { theme, toggleTheme } = useTheme();
+
     return (
         <div className="relative">
             {/* Ambient Background Elements */}
@@ -62,7 +62,7 @@ export default function Home() {
                                 <div className="w-full h-full rounded-full overflow-hidden bg-background p-1">
                                     <div className="w-full h-full rounded-full overflow-hidden relative group">
                                         <Image
-                                            src="/image.jpeg"
+                                            src="/Image.jpeg"
                                             alt="Mohamud - Multimedia Specialist"
                                             fill
                                             className="object-cover transition-transform duration-1000 group-hover:scale-110"

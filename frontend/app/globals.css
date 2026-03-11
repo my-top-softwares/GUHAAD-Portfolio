@@ -204,6 +204,10 @@ body {
     @apply border border-foreground/10 px-8 py-4 text-foreground font-extrabold uppercase tracking-widest text-[12px] transition-all duration-500 rounded-xl hover:border-accent hover:text-accent hover:bg-accent/5;
 }
 
+.btn-secondary {
+    @apply bg-white/10 backdrop-blur-md border border-white/5 text-foreground font-extrabold uppercase tracking-widest text-[12px] transition-all duration-500 rounded-xl hover:bg-white/20 hover:border-white/10;
+}
+
 .outline-text {
     -webkit-text-stroke: 1px var(--outline-color);
     color: transparent;

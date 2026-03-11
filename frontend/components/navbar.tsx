@@ -32,9 +32,9 @@ export default function Navbar() {
         <>
             <nav className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] md:w-[85%] lg:w-[75%] z-[100] px-8 py-4 flex justify-between items-center glass rounded-3xl border border-white/5 shadow-2xl overflow-hidden transition-colors duration-500">
 
-                <a href="/">
+                <Link href="/">
                     <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-2 select-none">GUHAAD</span>
-                </a>
+                </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wide">
